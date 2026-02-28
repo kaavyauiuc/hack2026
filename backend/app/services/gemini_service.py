@@ -6,7 +6,7 @@ claude_service.py is preserved for when Claude credits are restored.
 
 import os
 import uuid
-from typing import AsyncGenerator, List, Optional
+from typing import AsyncGenerator, List, Literal, Optional
 
 from google import genai
 from google.genai import types
@@ -43,7 +43,7 @@ class _LessonPlanOutput(BaseModel):
 
 
 class _EvaluationOutput(BaseModel):
-    cefr_estimate: str
+    cefr_estimate: Literal["A1", "A2", "B1", "B2", "C1", "C2"]
     achieved_objectives: List[str]
     partially_achieved: List[str]
     missed_objectives: List[str]
@@ -110,6 +110,7 @@ async def stream_tutor_response(
     lesson_plan: dict,
     conversation_history: List[dict],
     user_message: str,
+    last_session: Optional[dict] = None,
 ) -> AsyncGenerator[str, None]:
     """Stream the tutor's reply as text chunks (same interface as claude_service)."""
     client = _get_client()
@@ -119,6 +120,7 @@ async def stream_tutor_response(
         native_language=user_profile.get("native_language", "eng"),
         cefr_level=user_profile.get("current_cefr_level", "A1"),
         lesson_plan=lesson_plan,
+        last_session=last_session,
     )
 
     # Convert history: "assistant" role → "model" for Gemini

@@ -6,7 +6,7 @@ Uses Anthropic Python SDK with tool use for structured JSON outputs.
 import os
 import uuid
 import json
-from typing import AsyncGenerator, List
+from typing import AsyncGenerator, List, Optional
 
 import anthropic
 from dotenv import load_dotenv
@@ -103,6 +103,7 @@ async def stream_tutor_response(
     lesson_plan: dict,
     conversation_history: List[dict],
     user_message: str,
+    last_session: Optional[dict] = None,
 ) -> AsyncGenerator[str, None]:
     """
     Streams the tutor's response as Server-Sent Events (SSE) text chunks.
@@ -115,6 +116,7 @@ async def stream_tutor_response(
         native_language=user_profile.get("native_language", "eng"),
         cefr_level=user_profile.get("current_cefr_level", "A1"),
         lesson_plan=lesson_plan,
+        last_session=last_session,
     )
 
     messages = conversation_history + [{"role": "user", "content": user_message}]

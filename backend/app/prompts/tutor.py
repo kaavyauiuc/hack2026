@@ -1,8 +1,12 @@
+from typing import Optional
+
+
 def build_tutor_system_prompt(
     target_language: str,
     native_language: str,
     cefr_level: str,
     lesson_plan: dict,
+    last_session: Optional[dict] = None,
 ) -> str:
     lang_names = {
         "spa": "Spanish", "fra": "French", "deu": "German",
@@ -15,6 +19,16 @@ def build_tutor_system_prompt(
     objectives_str = "\n".join(f"  - {o}" for o in lesson_plan.get("objectives", []))
     activities_str = "\n".join(f"  {i+1}. {a}" for i, a in enumerate(lesson_plan.get("activities", [])))
     criteria_str = "\n".join(f"  - {c}" for c in lesson_plan.get("success_criteria", []))
+
+    if last_session:
+        last_session_section = (
+            f'\nPrevious session:\n'
+            f'- Topic: "{last_session["title"]}"\n'
+            f'- Recommendation carried forward: "{last_session["recommendation"]}"\n'
+            f'→ Open by briefly acknowledging what was practised last time and what today\'s focus is (1–2 sentences), then move straight into the first activity.\n'
+        )
+    else:
+        last_session_section = ""
 
     return f"""You are a warm, encouraging, and expert {target_name} language tutor.
 Your student's native language is {native_name} and they are currently at CEFR level {cefr_level}.
@@ -43,6 +57,6 @@ Safety guidelines:
 - Stay strictly on topic of language learning and the lesson content.
 - Politely redirect any off-topic or inappropriate requests back to the lesson.
 - Never produce harmful, offensive, or inappropriate content in any language.
-
+{last_session_section}
 Start by warmly greeting the student and introducing the first activity.
 """

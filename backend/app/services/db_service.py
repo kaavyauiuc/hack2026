@@ -30,7 +30,7 @@ def get_db():
 
 async def create_user(user_dict: dict) -> str:
     db = get_db()
-    result = await db.users.insert_one(user_dict)
+    await db.users.insert_one({**user_dict})
     return user_dict["user_id"]
 
 
@@ -68,7 +68,7 @@ async def append_session_to_history(user_id: str, summary: dict) -> bool:
 
 async def save_lesson_plan(lesson_dict: dict) -> str:
     db = get_db()
-    await db.lesson_plans.insert_one(lesson_dict)
+    await db.lesson_plans.insert_one({**lesson_dict})
     return lesson_dict["lesson_id"]
 
 
@@ -83,7 +83,7 @@ async def get_lesson_plan(lesson_id: str) -> Optional[dict]:
 
 async def create_session(transcript_dict: dict) -> str:
     db = get_db()
-    await db.sessions.insert_one(transcript_dict)
+    await db.sessions.insert_one({**transcript_dict})
     return transcript_dict["session_id"]
 
 
@@ -122,7 +122,7 @@ async def get_user_sessions(user_id: str) -> List[dict]:
 
 async def save_evaluation(evaluation_dict: dict) -> str:
     db = get_db()
-    await db.evaluations.insert_one(evaluation_dict)
+    await db.evaluations.insert_one({**evaluation_dict})
     return evaluation_dict["session_id"]
 
 

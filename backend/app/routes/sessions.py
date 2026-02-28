@@ -53,13 +53,32 @@ async def start_session(body: StartSessionRequest):
     )
     await db_service.create_session(transcript.model_dump())
 
+    # Build context from last session for the opening message
+    last_session_ctx = None
+    history = user.get("history", [])
+    if history:
+        last = history[-1]
+        last_eval = await db_service.get_evaluation(last["session_id"])
+        last_session_ctx = {
+            "title": last.get("lesson_title") or "previous lesson",
+            "recommendation": (last_eval or {}).get("next_recommendation", ""),
+        }
+
+    opening_prompt = (
+        "[Session started. Greet the student warmly, briefly recap last session "
+        "and introduce today's focus, then begin the first activity.]"
+        if last_session_ctx else
+        "[Session started. Greet the student and introduce today's lesson.]"
+    )
+
     # Get tutor's opening message (non-streaming, just first message)
     full_text = ""
     async for chunk in claude_service.stream_tutor_response(
         user_profile=user,
         lesson_plan=lesson_dict,
         conversation_history=[],
-        user_message="[Session started. Please greet the student and introduce today's lesson.]",
+        user_message=opening_prompt,
+        last_session=last_session_ctx,
     ):
         full_text += chunk
 
@@ -148,28 +167,34 @@ async def end_session(body: EndSessionRequest):
     # Mark session as ended
     await db_service.end_session(body.session_id)
 
-    # Evaluate via Claude Evaluator
-    evaluation = claude_service.evaluate_session(
-        session_id=body.session_id,
-        transcript=session,
-        lesson_plan=lesson_plan,
-    )
-    eval_dict = evaluation.model_dump()
-    await db_service.save_evaluation(eval_dict)
-
-    # Update user profile: CEFR level, strengths, weaknesses
+    # Evaluate via Gemini Evaluator (defensive: keep existing profile on failure)
     user = await db_service.get_user(body.user_id)
+    try:
+        evaluation = claude_service.evaluate_session(
+            session_id=body.session_id,
+            transcript=session,
+            lesson_plan=lesson_plan,
+        )
+        eval_dict = evaluation.model_dump()
+        await db_service.save_evaluation(eval_dict)
+        # Only promote the new CEFR level if model is confident enough
+        new_cefr = (
+            evaluation.cefr_estimate
+            if evaluation.confidence_score >= 0.4
+            else (user or {}).get("current_cefr_level", "A1")
+        )
+        new_weaknesses = list(dict.fromkeys(evaluation.weaknesses + (user or {}).get("weaknesses", [])))[:10]
+        new_strengths = list(dict.fromkeys(evaluation.achieved_objectives + (user or {}).get("strengths", [])))[:10]
+    except Exception:
+        evaluation = None
+        eval_dict = {}
+        new_cefr = (user or {}).get("current_cefr_level", "A1")
+        new_weaknesses = (user or {}).get("weaknesses", [])
+        new_strengths = (user or {}).get("strengths", [])
+
     if user:
-        # Merge weaknesses (keep unique, last 10)
-        existing_weaknesses = user.get("weaknesses", [])
-        new_weaknesses = list(dict.fromkeys(evaluation.weaknesses + existing_weaknesses))[:10]
-
-        # Merge strengths from achieved objectives (keep unique, last 10)
-        existing_strengths = user.get("strengths", [])
-        new_strengths = list(dict.fromkeys(evaluation.achieved_objectives + existing_strengths))[:10]
-
         await db_service.update_user(body.user_id, {
-            "current_cefr_level": evaluation.cefr_estimate,
+            "current_cefr_level": new_cefr,
             "weaknesses": new_weaknesses,
             "strengths": new_strengths,
         })
@@ -178,12 +203,12 @@ async def end_session(body: EndSessionRequest):
         summary = SessionSummary(
             session_id=body.session_id,
             date=datetime.utcnow(),
-            cefr_estimate=evaluation.cefr_estimate,
+            cefr_estimate=new_cefr,
             lesson_title=lesson_plan.get("title"),
         )
         await db_service.append_session_to_history(body.user_id, summary.model_dump())
 
-    return evaluation.model_dump()
+    return eval_dict or {"session_id": body.session_id, "cefr_estimate": new_cefr}
 
 
 # ─────────────────────────────────────────────

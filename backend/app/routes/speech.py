@@ -1,10 +1,31 @@
 import io
+import re
 import subprocess
 import tempfile
 import os
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import Response
 from app.services import speech_service
+
+
+def _strip_markdown(text: str) -> str:
+    """Remove common markdown formatting so TTS reads clean prose."""
+    # Bold / italic: ***text***, **text**, *text*, ___text___, __text__, _text_
+    text = re.sub(r'\*{1,3}|_{1,3}', '', text)
+    # Inline code and code blocks
+    text = re.sub(r'`{1,3}[^`]*`{1,3}', '', text)
+    # Headings
+    text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+    # Bullet / numbered list markers
+    text = re.sub(r'^\s*[-*+]\s+', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^\s*\d+\.\s+', '', text, flags=re.MULTILINE)
+    # Blockquotes
+    text = re.sub(r'^\s*>\s*', '', text, flags=re.MULTILINE)
+    # Links [label](url) → label
+    text = re.sub(r'\[([^\]]+)\]\([^)]*\)', r'\1', text)
+    # Collapse extra whitespace
+    text = re.sub(r'\n{2,}', ' ', text)
+    return text.strip()
 
 router = APIRouter(prefix="/speech", tags=["speech"])
 
@@ -61,7 +82,7 @@ async def speech_to_text(
 
 @router.post("/tts")
 async def text_to_speech(body: dict):
-    text = body.get("text", "").strip()
+    text = _strip_markdown(body.get("text", "").strip())
     language = body.get("language", "spa")
 
     if not text:
@@ -72,6 +93,6 @@ async def text_to_speech(body: dict):
     audio_bytes = await speech_service.synthesize_speech(text, language)
     return Response(
         content=audio_bytes,
-        media_type="audio/wav",
-        headers={"Content-Disposition": "inline; filename=speech.wav"},
+        media_type="audio/mpeg",
+        headers={"Content-Disposition": "inline; filename=speech.mp3"},
     )
