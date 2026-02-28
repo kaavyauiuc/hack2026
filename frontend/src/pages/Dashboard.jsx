@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getUserProfile, getSessionHistory } from '../services/api.js'
 import ProgressChart from '../components/ProgressChart.jsx'
+import Nav from '../components/Nav.jsx'
 
 const LANG_NAMES = {
   spa: 'Spanish', fra: 'French', deu: 'German',
@@ -11,6 +12,17 @@ const LANG_NAMES = {
 const CEFR_LABELS = {
   A1: 'Beginner', A2: 'Elementary', B1: 'Intermediate',
   B2: 'Upper-intermediate', C1: 'Advanced', C2: 'Mastery',
+}
+
+const HELLO_IN = {
+  spa: 'Hola',
+  fra: 'Bonjour',
+  deu: 'Hallo',
+  cmn: '你好',
+  jpn: 'こんにちは',
+  por: 'Olá',
+  hin: 'नमस्ते',
+  eng: 'Hello',
 }
 
 export default function Dashboard() {
@@ -48,13 +60,7 @@ export default function Dashboard() {
     <div className="grid-bg" style={s.page}>
       <div style={s.inner}>
 
-        {/* Top nav */}
-        <header className="reveal-0" style={s.nav}>
-          <span style={s.navBrand}>LinguaAI</span>
-          <button style={s.newSessionBtn} onClick={() => navigate('/session')}>
-            New session →
-          </button>
-        </header>
+        <div className="reveal-0"><Nav /></div>
 
         {profile && (
           <>
@@ -62,7 +68,9 @@ export default function Dashboard() {
             <div className="reveal-1" style={s.hero}>
               <div style={s.heroLeft}>
                 <div style={s.greeting}>
-                  <em style={{ fontStyle: 'italic', fontWeight: 300 }}>Ciao,</em>{' '}
+                  <em style={{ fontStyle: 'italic', fontWeight: 300 }}>
+                    {HELLO_IN[profile.target_language] ?? 'Hello'},
+                  </em>{' '}
                   {profile.name}
                 </div>
                 <div style={s.langs}>
@@ -161,34 +169,6 @@ export default function Dashboard() {
 const s = {
   page: { minHeight: '100vh', padding: '0 16px' },
   inner: { maxWidth: 740, margin: '0 auto' },
-  nav: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '24px 0 20px',
-    marginBottom: 8,
-  },
-  navBrand: {
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontStyle: 'italic',
-    fontSize: 16,
-    fontWeight: 500,
-    color: 'var(--muted)',
-  },
-  newSessionBtn: {
-    padding: '9px 18px',
-    background: 'var(--accent)',
-    border: 'none',
-    borderRadius: 'var(--radius)',
-    color: '#fff',
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontStyle: 'italic',
-    fontSize: 15,
-    fontWeight: 600,
-    cursor: 'pointer',
-    boxShadow: '0 3px 18px rgba(212,112,42,0.3)',
-    letterSpacing: '-0.01em',
-  },
   hero: {
     display: 'flex',
     alignItems: 'flex-end',
