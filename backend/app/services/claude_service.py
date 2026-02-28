@@ -82,7 +82,8 @@ def translate_text(text: str, source_lang: str, target_lang: str) -> str:
     client = _get_client()
     lang_names = {
         "spa": "Spanish", "fra": "French", "deu": "German",
-        "cmn": "Mandarin Chinese", "jpn": "Japanese", "por": "Portuguese", "eng": "English",
+        "cmn": "Mandarin Chinese", "jpn": "Japanese", "por": "Portuguese",
+        "hin": "Hindi", "eng": "English",
     }
     src = lang_names.get(source_lang, source_lang)
     tgt = lang_names.get(target_lang, target_lang)

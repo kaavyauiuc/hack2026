@@ -5,7 +5,7 @@ import ProgressChart from '../components/ProgressChart.jsx'
 
 const LANG_NAMES = {
   spa: 'Spanish', fra: 'French', deu: 'German',
-  cmn: 'Mandarin', jpn: 'Japanese', por: 'Portuguese', eng: 'English',
+  cmn: 'Mandarin', jpn: 'Japanese', por: 'Portuguese', hin: 'Hindi', eng: 'English',
 }
 
 const CEFR_LABELS = {

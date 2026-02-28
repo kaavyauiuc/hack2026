@@ -11,7 +11,7 @@ def build_tutor_system_prompt(
     lang_names = {
         "spa": "Spanish", "fra": "French", "deu": "German",
         "cmn": "Mandarin Chinese", "jpn": "Japanese", "por": "Portuguese",
-        "eng": "English",
+        "hin": "Hindi", "eng": "English",
     }
     target_name = lang_names.get(target_language, target_language)
     native_name = lang_names.get(native_language, native_language)

@@ -29,7 +29,7 @@ def _strip_markdown(text: str) -> str:
 
 router = APIRouter(prefix="/speech", tags=["speech"])
 
-SUPPORTED_LANGUAGES = {"spa", "fra", "deu", "cmn", "jpn", "por", "eng"}
+SUPPORTED_LANGUAGES = {"spa", "fra", "deu", "cmn", "jpn", "por", "hin", "eng"}
 
 
 def _normalize_to_wav_16k(audio_bytes: bytes) -> bytes:

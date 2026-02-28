@@ -24,7 +24,7 @@ ml_image = (
     )
 )
 
-SUPPORTED_LANGUAGES = ["spa", "fra", "deu", "cmn", "jpn", "por", "eng"]
+SUPPORTED_LANGUAGES = ["spa", "fra", "deu", "cmn", "jpn", "por", "hin", "eng"]
 
 # ─────────────────────────────────────────────
 # STT — facebook/mms-1b-all
@@ -127,6 +127,7 @@ LANG_TO_MODEL = {
     "cmn": "facebook/mms-tts-cmn",
     "jpn": "facebook/mms-tts-jpn",
     "por": "facebook/mms-tts-por",
+    "hin": "facebook/mms-tts-hin",
     "eng": "facebook/mms-tts-eng",
 }
 

@@ -9,6 +9,7 @@ const LANGUAGES = [
   { code: 'cmn', label: 'Mandarin',   native: '中文',       flag: '🇨🇳' },
   { code: 'jpn', label: 'Japanese',   native: '日本語',     flag: '🇯🇵' },
   { code: 'por', label: 'Portuguese', native: 'Português', flag: '🇧🇷' },
+  { code: 'hin', label: 'Hindi',      native: 'हिन्दी',    flag: '🇮🇳' },
 ]
 
 const NATIVE_LANGUAGES = [
@@ -19,6 +20,7 @@ const NATIVE_LANGUAGES = [
   { code: 'cmn', label: 'Mandarin'   },
   { code: 'jpn', label: 'Japanese'   },
   { code: 'por', label: 'Portuguese' },
+  { code: 'hin', label: 'Hindi'      },
 ]
 
 const CEFR = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
@@ -216,7 +218,7 @@ const s = {
   section: { marginBottom: 24 },
   langGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
+    gridTemplateColumns: 'repeat(4, 1fr)',
     gap: 8,
   },
   langCard: sel => ({
