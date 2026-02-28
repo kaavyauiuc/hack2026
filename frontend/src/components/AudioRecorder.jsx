@@ -1,12 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
 
-/**
- * AudioRecorder hook — click to start, click to stop (toggle).
- *
- * stopRecording reads the MediaRecorder ref directly (not isRecording state)
- * so it works even when called synchronously after startRecording before
- * the state update has flushed.
- */
 export function useAudioRecorder(onBlob) {
   const [isRecording, setIsRecording] = useState(false)
   const mediaRecorderRef = useRef(null)
@@ -21,10 +14,9 @@ export function useAudioRecorder(onBlob) {
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data)
       }
-
       recorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' })
-        stream.getTracks().forEach((t) => t.stop())
+        stream.getTracks().forEach(t => t.stop())
         onBlob(blob)
       }
 
@@ -37,8 +29,6 @@ export function useAudioRecorder(onBlob) {
     }
   }, [onBlob])
 
-  // Uses the ref directly — no dependency on isRecording state — so it's
-  // always safe to call immediately after startRecording.
   const stopRecording = useCallback(() => {
     const recorder = mediaRecorderRef.current
     if (recorder && recorder.state !== 'inactive') {
@@ -50,70 +40,91 @@ export function useAudioRecorder(onBlob) {
   return { isRecording, startRecording, stopRecording }
 }
 
-const styles = {
-  button: (isRecording, isDisabled) => ({
-    width: 80,
-    height: 80,
-    borderRadius: '50%',
-    border: 'none',
-    cursor: isDisabled ? 'not-allowed' : 'pointer',
-    fontSize: 32,
-    background: isRecording
-      ? 'linear-gradient(135deg, #ef4444, #dc2626)'
-      : isDisabled
-        ? '#1e293b'
-        : 'linear-gradient(135deg, #6366f1, #4f46e5)',
-    color: '#fff',
-    opacity: isDisabled ? 0.45 : 1,
-    boxShadow: isRecording
-      ? '0 0 0 8px rgba(239,68,68,0.3), 0 4px 20px rgba(239,68,68,0.5)'
-      : isDisabled
-        ? 'none'
-        : '0 4px 20px rgba(99,102,241,0.4)',
-    transform: isRecording ? 'scale(1.1)' : 'scale(1)',
-    transition: 'all 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }),
-  label: {
-    marginTop: 8,
-    fontSize: 12,
-    color: '#94a3b8',
-    textAlign: 'center',
-  },
-  wrapper: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-}
-
-/**
- * MicButton — click once to start recording, click again to stop and send.
- * The stop action is never disabled so the user can always end a recording.
- */
 export default function MicButton({ isRecording, onStart, onStop, disabled }) {
-  // Only block starting — never block stopping
   const blockStart = disabled && !isRecording
 
   return (
-    <div style={styles.wrapper}>
+    <div style={s.wrapper}>
+      {/* Pulse rings when recording */}
+      {isRecording && (
+        <>
+          <span style={{ ...s.ring, animationDelay: '0s'   }} />
+          <span style={{ ...s.ring, animationDelay: '0.5s' }} />
+        </>
+      )}
+
       <button
-        style={styles.button(isRecording, blockStart)}
+        style={s.btn(isRecording, blockStart)}
         onClick={isRecording ? onStop : onStart}
         disabled={blockStart}
         aria-label={isRecording ? 'Stop recording' : 'Start recording'}
       >
-        {isRecording ? '⏹' : '🎤'}
+        {isRecording ? (
+          /* Stop square */
+          <span style={s.stopIcon} />
+        ) : (
+          /* Mic icon */
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <line x1="12" y1="19" x2="12" y2="23" />
+            <line x1="8" y1="23" x2="16" y2="23" />
+          </svg>
+        )}
       </button>
-      <span style={styles.label}>
-        {isRecording
-          ? 'Recording… tap to send'
-          : disabled
-            ? 'Please wait…'
-            : 'Tap to speak'}
-      </span>
     </div>
   )
+}
+
+const BTN_SIZE = 72
+
+const s = {
+  wrapper: {
+    position: 'relative',
+    width: BTN_SIZE,
+    height: BTN_SIZE,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ring: {
+    position: 'absolute',
+    inset: 0,
+    borderRadius: '50%',
+    border: '2px solid var(--red)',
+    animation: 'pulseRing 1.4s ease-out infinite',
+    pointerEvents: 'none',
+  },
+  btn: (isRecording, isDisabled) => ({
+    width: BTN_SIZE,
+    height: BTN_SIZE,
+    borderRadius: '50%',
+    border: 'none',
+    cursor: isDisabled ? 'not-allowed' : 'pointer',
+    background: isRecording
+      ? 'var(--red)'
+      : isDisabled
+        ? 'var(--surface-2)'
+        : 'var(--accent)',
+    color: isDisabled && !isRecording ? 'var(--dim)' : '#fff',
+    opacity: isDisabled && !isRecording ? 0.5 : 1,
+    boxShadow: isRecording
+      ? '0 0 0 6px var(--red-glow), 0 4px 24px rgba(196,64,64,0.4)'
+      : isDisabled
+        ? 'none'
+        : '0 4px 24px rgba(212,112,42,0.35)',
+    transform: isRecording ? 'scale(1.08)' : 'scale(1)',
+    transition: 'all 0.18s cubic-bezier(0.22,1,0.36,1)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    zIndex: 1,
+  }),
+  stopIcon: {
+    width: 20,
+    height: 20,
+    background: '#fff',
+    borderRadius: 3,
+  },
 }

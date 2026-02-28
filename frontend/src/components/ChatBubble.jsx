@@ -1,76 +1,105 @@
-const styles = {
-  wrapper: (speaker) => ({
-    display: 'flex',
-    justifyContent: speaker === 'user' ? 'flex-end' : 'flex-start',
-    marginBottom: 12,
-  }),
-  bubble: (speaker) => ({
-    maxWidth: '72%',
-    padding: '12px 16px',
-    borderRadius: speaker === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-    background: speaker === 'user'
-      ? 'linear-gradient(135deg, #6366f1, #4f46e5)'
-      : '#1e293b',
-    color: '#e2e8f0',
-    fontSize: 15,
-    lineHeight: 1.5,
-    border: speaker === 'tutor' ? '1px solid #334155' : 'none',
-  }),
-  label: (speaker) => ({
-    fontSize: 11,
-    color: '#64748b',
-    marginBottom: 4,
-    textAlign: speaker === 'user' ? 'right' : 'left',
-  }),
-  translation: {
-    marginTop: 8,
-    fontSize: 13,
-    color: '#64748b',
-    fontStyle: 'italic',
-  },
-  playRow: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    marginTop: 8,
-  },
-  playBtn: {
-    background: 'transparent',
-    border: 'none',
-    color: '#94a3b8',
-    cursor: 'pointer',
-    fontSize: 16,
-    padding: '2px 4px',
-    lineHeight: 1,
-  },
-  spinner: {
-    color: '#64748b',
-    fontSize: 13,
-  },
-}
-
 export default function ChatBubble({ speaker, text, translation, audioLoading, onPlay }) {
+  const isUser = speaker === 'user'
   return (
-    <div style={styles.wrapper(speaker)}>
-      <div>
-        <div style={styles.label(speaker)}>
-          {speaker === 'user' ? 'You' : 'AI Tutor'}
-        </div>
-        <div style={styles.bubble(speaker)}>
-          {text}
+    <div className={isUser ? 'msg-user' : 'msg-tutor'} style={s.wrapper(isUser)}>
+      <div style={s.outer(isUser)}>
+        <div style={s.label(isUser)}>{isUser ? 'You' : 'Tutor'}</div>
+        <div style={s.bubble(isUser)}>
+          <span style={s.text}>{text || <span style={s.cursor} />}</span>
           {translation && (
-            <div style={styles.translation}>{translation}</div>
+            <div style={s.translation}>{translation}</div>
           )}
-          {speaker === 'tutor' && (
-            <div style={styles.playRow}>
-              {audioLoading ? (
-                <span style={styles.spinner}>…</span>
-              ) : onPlay ? (
-                <button style={styles.playBtn} onClick={onPlay} title="Play audio">▶</button>
-              ) : null}
+          {!isUser && (
+            <div style={s.playRow}>
+              {audioLoading
+                ? <span style={s.loadingDots}><span>·</span><span>·</span><span>·</span></span>
+                : onPlay
+                  ? <button style={s.playBtn} onClick={onPlay} title="Play audio">▶</button>
+                  : null}
             </div>
           )}
         </div>
       </div>
     </div>
   )
+}
+
+const s = {
+  wrapper: isUser => ({
+    display: 'flex',
+    justifyContent: isUser ? 'flex-end' : 'flex-start',
+    marginBottom: 16,
+    padding: '0 4px',
+  }),
+  outer: isUser => ({
+    maxWidth: '75%',
+    minWidth: 48,
+  }),
+  label: isUser => ({
+    fontFamily: 'Overpass Mono, monospace',
+    fontSize: 10,
+    letterSpacing: '0.12em',
+    textTransform: 'uppercase',
+    color: 'var(--dim)',
+    marginBottom: 5,
+    textAlign: isUser ? 'right' : 'left',
+  }),
+  bubble: isUser => ({
+    padding: '12px 15px',
+    borderRadius: isUser ? '14px 14px 4px 14px' : '4px 14px 14px 14px',
+    background: isUser ? 'var(--surface-3)' : 'var(--surface)',
+    border: isUser ? '1px solid var(--border)' : 'none',
+    borderLeft: isUser ? undefined : '2px solid var(--accent)',
+    color: 'var(--text)',
+    lineHeight: 1.65,
+    fontFamily: 'Overpass Mono, monospace',
+    fontSize: 13.5,
+    position: 'relative',
+  }),
+  text: {
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
+  },
+  cursor: {
+    display: 'inline-block',
+    width: 8,
+    height: 14,
+    background: 'var(--accent)',
+    borderRadius: 1,
+    verticalAlign: 'text-bottom',
+    animation: 'blink 1s step-end infinite',
+  },
+  translation: {
+    marginTop: 9,
+    paddingTop: 9,
+    borderTop: '1px solid var(--border-subtle)',
+    fontFamily: 'Fraunces, Georgia, serif',
+    fontStyle: 'italic',
+    fontSize: 13,
+    color: 'var(--muted)',
+    fontWeight: 300,
+  },
+  playRow: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginTop: 8,
+    minHeight: 18,
+  },
+  playBtn: {
+    background: 'transparent',
+    border: 'none',
+    color: 'var(--accent)',
+    cursor: 'pointer',
+    fontSize: 13,
+    padding: '0 2px',
+    lineHeight: 1,
+    opacity: 0.8,
+    transition: 'opacity 0.15s',
+  },
+  loadingDots: {
+    fontFamily: 'Overpass Mono, monospace',
+    fontSize: 16,
+    color: 'var(--muted)',
+    letterSpacing: 2,
+  },
 }

@@ -1,0 +1,138 @@
+/* ── CSS Variables ───────────────────────────────────────────── */
+:root {
+  --bg:            #0e0b09;
+  --surface:       #181410;
+  --surface-2:     #221c15;
+  --surface-3:     #2c2419;
+  --border:        #312718;
+  --border-subtle: #261f18;
+
+  --text:          #f2e8d5;
+  --muted:         #8c7b68;
+  --dim:           #54473c;
+
+  --accent:        #d4702a;
+  --accent-bright: #e07b35;
+  --accent-glow:   rgba(212, 112, 42, 0.14);
+  --accent-dim:    rgba(212, 112, 42, 0.10);
+
+  --sage:          #4e8e6e;
+  --sage-dim:      rgba(78, 142, 110, 0.12);
+
+  --red:           #c44040;
+  --red-glow:      rgba(196, 64, 64, 0.22);
+
+  --radius:        10px;
+  --radius-lg:     16px;
+  --radius-xl:     22px;
+}
+
+/* ── Keyframes ───────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-14px); }
+  to   { opacity: 1; transform: translateX(0);     }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(14px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+@keyframes pulseRing {
+  0%   { transform: scale(1);   opacity: 0.55; }
+  100% { transform: scale(1.85); opacity: 0;   }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Staggered reveal classes ────────────────────────────────── */
+.reveal-0 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.04s; }
+.reveal-1 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.14s; }
+.reveal-2 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.24s; }
+.reveal-3 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.34s; }
+.reveal-4 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.44s; }
+.reveal-5 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.54s; }
+
+/* ── Chat bubble entrance ────────────────────────────────────── */
+.msg-tutor { animation: slideInLeft  0.32s cubic-bezier(0.22,1,0.36,1) both; }
+.msg-user  { animation: slideInRight 0.32s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* ── Modal entrance ──────────────────────────────────────────── */
+.modal-enter { animation: scaleIn 0.28s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* ── Patterned background ────────────────────────────────────── */
+.grid-bg {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(212,112,42,0.07) 0%, transparent 65%),
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+  background-size: auto, 40px 40px, 40px 40px;
+}
+
+/* ── Surface card ────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+/* ── Label caps ──────────────────────────────────────────────── */
+.label-caps {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── Spinner ─────────────────────────────────────────────────── */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  display: inline-block;
+}
+
+/* ── Input / Select reset ────────────────────────────────────── */
+.field {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Overpass Mono', monospace;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.field:focus { border-color: var(--accent); }
+.field::placeholder { color: var(--dim); }

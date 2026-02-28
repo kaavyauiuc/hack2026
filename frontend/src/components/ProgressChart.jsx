@@ -3,72 +3,80 @@ import {
 } from 'recharts'
 
 const CEFR_ORDER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
-
-function cefrToNum(level) {
-  const idx = CEFR_ORDER.indexOf(level)
-  return idx >= 0 ? idx + 1 : 1
-}
-
-function numToCefr(num) {
-  return CEFR_ORDER[Math.round(num) - 1] || 'A1'
-}
+const cefrToNum = level => { const i = CEFR_ORDER.indexOf(level); return i >= 0 ? i + 1 : 1 }
+const numToCefr = num => CEFR_ORDER[Math.round(num) - 1] || 'A1'
 
 const CustomTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div style={{
-        background: '#1e293b',
-        border: '1px solid #334155',
-        borderRadius: 8,
-        padding: '8px 12px',
-        fontSize: 13,
-      }}>
-        <p style={{ color: '#6366f1', fontWeight: 600 }}>
-          CEFR: {numToCefr(payload[0].value)}
-        </p>
-        <p style={{ color: '#94a3b8' }}>{payload[0].payload.date}</p>
+  if (!active || !payload?.length) return null
+  return (
+    <div style={{
+      background: '#1a1510',
+      border: '1px solid #312718',
+      borderRadius: 8,
+      padding: '9px 13px',
+      fontFamily: 'Overpass Mono, monospace',
+    }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: '#d4702a', fontFamily: 'Fraunces, Georgia, serif' }}>
+        {numToCefr(payload[0].value)}
       </div>
-    )
-  }
-  return null
+      <div style={{ fontSize: 11, color: '#8c7b68', marginTop: 2 }}>
+        {payload[0].payload.date}
+      </div>
+    </div>
+  )
 }
 
 export default function ProgressChart({ history }) {
   if (!history || history.length === 0) {
     return (
-      <div style={{ textAlign: 'center', color: '#64748b', padding: 32 }}>
-        Complete a session to see your CEFR progress chart.
+      <div style={{
+        textAlign: 'center',
+        color: 'var(--muted)',
+        padding: '28px 16px',
+        fontSize: 12,
+        fontFamily: 'Overpass Mono, monospace',
+      }}>
+        Complete a session to see your CEFR progress.
       </div>
     )
   }
 
   const data = history.map((s, i) => ({
     session: `S${i + 1}`,
-    date: new Date(s.date).toLocaleDateString(),
+    date: new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     level: cefrToNum(s.cefr_estimate),
     cefr: s.cefr_estimate,
   }))
 
   return (
-    <ResponsiveContainer width="100%" height={200}>
-      <LineChart data={data} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-        <XAxis dataKey="session" stroke="#475569" tick={{ fontSize: 12 }} />
+    <ResponsiveContainer width="100%" height={190}>
+      <LineChart data={data} margin={{ top: 6, right: 12, bottom: 4, left: 0 }}>
+        <CartesianGrid strokeDasharray="2 4" stroke="#261f18" />
+        <XAxis
+          dataKey="session"
+          stroke="#312718"
+          tick={{ fontSize: 11, fill: '#54473c', fontFamily: 'Overpass Mono, monospace' }}
+          tickLine={false}
+          axisLine={{ stroke: '#312718' }}
+        />
         <YAxis
           domain={[1, 6]}
           ticks={[1, 2, 3, 4, 5, 6]}
           tickFormatter={numToCefr}
-          stroke="#475569"
-          tick={{ fontSize: 12 }}
+          stroke="#312718"
+          tick={{ fontSize: 11, fill: '#54473c', fontFamily: 'Overpass Mono, monospace' }}
+          tickLine={false}
+          axisLine={{ stroke: '#312718' }}
+          width={28}
         />
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#312718', strokeWidth: 1 }} />
         <Line
           type="monotone"
           dataKey="level"
-          stroke="#6366f1"
+          stroke="#d4702a"
           strokeWidth={2}
-          dot={{ fill: '#6366f1', r: 5 }}
-          activeDot={{ r: 7 }}
+          dot={{ fill: '#d4702a', r: 4, strokeWidth: 0 }}
+          activeDot={{ r: 6, fill: '#e07b35', strokeWidth: 0 }}
         />
       </LineChart>
     </ResponsiveContainer>
