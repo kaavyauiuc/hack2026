@@ -27,6 +27,7 @@ _LANG_MAP: dict[str, str] = {
     "cmn": "zh-CN",
     "jpn": "ja-JP",
     "por": "pt-BR",
+    "hin": "hi-IN",
     "eng": "en-US",
 }
 

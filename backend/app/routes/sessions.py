@@ -8,7 +8,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from app.models import Transcript, Message, SessionSummary
-from app.services import db_service, claude_service
+from app.services import db_service, gemini_service as claude_service
 
 router = APIRouter(prefix="/session", tags=["sessions"])
 
