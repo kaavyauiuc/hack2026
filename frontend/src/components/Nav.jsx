@@ -1,14 +1,32 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 
+const LANG_FLAGS = {
+  spa: '🇪🇸', fra: '🇫🇷', deu: '🇩🇪',
+  cmn: '🇨🇳', jpn: '🇯🇵', por: '🇧🇷', hin: '🇮🇳', eng: '🇬🇧',
+}
+
+const LANG_NAMES = {
+  spa: 'Spanish', fra: 'French', deu: 'German',
+  cmn: 'Mandarin', jpn: 'Japanese', por: 'Portuguese', hin: 'Hindi', eng: 'English',
+}
+
 export default function Nav() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const activeLanguage = localStorage.getItem('target_language')
 
   return (
     <nav style={s.nav}>
-      <button style={s.brand} onClick={() => navigate('/dashboard')}>
-        LinguaAI
-      </button>
+      <div style={s.brandRow}>
+        <button style={s.brand} onClick={() => navigate('/dashboard')}>
+          LinguaAI
+        </button>
+        {activeLanguage && LANG_FLAGS[activeLanguage] && (
+          <span style={s.langPill}>
+            {LANG_FLAGS[activeLanguage]} {LANG_NAMES[activeLanguage] ?? activeLanguage}
+          </span>
+        )}
+      </div>
       <div style={s.links}>
         <NavLink label="Dashboard" to="/dashboard" active={pathname === '/dashboard'} navigate={navigate} />
         <NavLink label="Profile"   to="/profile"   active={pathname === '/profile'}   navigate={navigate} />
@@ -36,6 +54,11 @@ const s = {
     padding: '20px 0',
     marginBottom: 8,
   },
+  brandRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+  },
   brand: {
     fontFamily: 'Fraunces, Georgia, serif',
     fontStyle: 'italic',
@@ -46,6 +69,17 @@ const s = {
     border: 'none',
     cursor: 'pointer',
     padding: 0,
+  },
+  langPill: {
+    padding: '3px 9px',
+    background: 'var(--accent-dim)',
+    border: '1px solid rgba(212,112,42,0.3)',
+    borderRadius: 20,
+    fontFamily: 'Overpass Mono, monospace',
+    fontSize: 10,
+    color: 'var(--accent-bright)',
+    letterSpacing: '0.04em',
+    whiteSpace: 'nowrap',
   },
   links: {
     display: 'flex',

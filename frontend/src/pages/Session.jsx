@@ -2,12 +2,12 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MicButton, { useAudioRecorder } from '../components/AudioRecorder.jsx'
 import ChatBubble from '../components/ChatBubble.jsx'
-import { startSession, endSession, sendMessage, transcribeAudio, synthesizeSpeech } from '../services/api.js'
+import { startSession, endSession, sendMessage, transcribeAudio, synthesizeSpeech, getUserProfile } from '../services/api.js'
 
 export default function Session() {
   const navigate = useNavigate()
   const userId = localStorage.getItem('user_id')
-  const targetLang = localStorage.getItem('target_language') || 'spa'
+  const [targetLang, setTargetLang] = useState(localStorage.getItem('target_language') || 'spa')
 
   const [sessionId, setSessionId] = useState(null)
   const [lessonTitle, setLessonTitle] = useState('')
@@ -25,6 +25,14 @@ export default function Session() {
   useEffect(() => {
     async function init() {
       try {
+        // Sync active_language from profile before starting
+        try {
+          const profile = await getUserProfile(userId)
+          const lang = profile.active_language ?? targetLang
+          setTargetLang(lang)
+          localStorage.setItem('target_language', lang)
+        } catch (_) { /* keep existing localStorage value */ }
+
         const data = await startSession(userId)
         setSessionId(data.session_id)
         setLessonTitle(data.lesson_title)

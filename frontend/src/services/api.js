@@ -15,6 +15,15 @@ export const createUserProfile = (data) =>
 export const getUserProfile = (userId) =>
   api.get(`/user/profile/${userId}`).then((r) => r.data)
 
+export const updateUserProfile = (userId, data) =>
+  api.patch(`/user/profile/${userId}`, data).then((r) => r.data)
+
+export const addUserLanguage = (userId, language, cefrLevel) =>
+  api.post(`/user/language/${userId}`, { language, current_cefr_level: cefrLevel }).then((r) => r.data)
+
+export const removeUserLanguage = (userId, language) =>
+  api.delete(`/user/language/${userId}/${language}`).then((r) => r.data)
+
 // ─────────────────────────────────────────────
 // Session
 // ─────────────────────────────────────────────

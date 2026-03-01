@@ -2,8 +2,8 @@ import uuid
 import asyncio
 import json
 from datetime import datetime
-from typing import List
-from fastapi import APIRouter, HTTPException
+from typing import List, Optional
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
@@ -28,6 +28,15 @@ class EndSessionRequest(BaseModel):
     user_id: str
 
 
+def _get_active_lang_progress(user: dict) -> Optional[dict]:
+    """Return the LanguageProgress dict for the active language, or None."""
+    active = user.get("active_language")
+    for lang in user.get("languages", []):
+        if lang.get("language") == active:
+            return lang
+    return None
+
+
 # ─────────────────────────────────────────────
 # POST /session/start
 # ─────────────────────────────────────────────
@@ -38,8 +47,20 @@ async def start_session(body: StartSessionRequest):
     if not user:
         raise HTTPException(404, "User not found")
 
+    # Build a user_for_session dict that exposes target_language for the LLM services
+    active_lang = user.get("active_language")
+    lang_progress = _get_active_lang_progress(user)
+
+    user_for_session = {
+        **user,
+        "target_language": active_lang,
+        "current_cefr_level": (lang_progress or {}).get("current_cefr_level", "A1"),
+        "strengths": (lang_progress or {}).get("strengths", []),
+        "weaknesses": (lang_progress or {}).get("weaknesses", []),
+    }
+
     # Generate lesson plan via Claude Planner
-    lesson_plan = claude_service.plan_lesson(user)
+    lesson_plan = claude_service.plan_lesson(user_for_session)
     lesson_dict = lesson_plan.model_dump()
     await db_service.save_lesson_plan(lesson_dict)
 
@@ -53,11 +74,11 @@ async def start_session(body: StartSessionRequest):
     )
     await db_service.create_session(transcript.model_dump())
 
-    # Build context from last session for the opening message
+    # Build context from last session (active language only)
     last_session_ctx = None
-    history = user.get("history", [])
-    if history:
-        last = history[-1]
+    lang_history = (lang_progress or {}).get("history", [])
+    if lang_history:
+        last = lang_history[-1]
         last_eval = await db_service.get_evaluation(last["session_id"])
         last_session_ctx = {
             "title": last.get("lesson_title") or "previous lesson",
@@ -71,10 +92,10 @@ async def start_session(body: StartSessionRequest):
         "[Session started. Greet the student and introduce today's lesson.]"
     )
 
-    # Get tutor's opening message (non-streaming, just first message)
+    # Get tutor's opening message
     full_text = ""
     async for chunk in claude_service.stream_tutor_response(
-        user_profile=user,
+        user_profile=user_for_session,
         lesson_plan=lesson_dict,
         conversation_history=[],
         user_message=opening_prompt,
@@ -82,11 +103,12 @@ async def start_session(body: StartSessionRequest):
     ):
         full_text += chunk
 
-    # Store tutor's opening message
     opening_msg = Message(speaker="tutor", text=full_text)
     await db_service.append_message(session_id, opening_msg.model_dump())
 
-    translation = await asyncio.to_thread(claude_service.translate_text, full_text, user["target_language"], user["native_language"])
+    translation = await asyncio.to_thread(
+        claude_service.translate_text, full_text, active_lang, user["native_language"]
+    )
 
     return {
         "session_id": session_id,
@@ -116,22 +138,31 @@ async def send_message(body: MessageRequest):
     if not lesson_plan:
         raise HTTPException(404, "Lesson plan not found")
 
+    active_lang = user.get("active_language")
+    lang_progress = _get_active_lang_progress(user)
+    user_for_session = {
+        **user,
+        "target_language": active_lang,
+        "current_cefr_level": (lang_progress or {}).get("current_cefr_level", "A1"),
+        "strengths": (lang_progress or {}).get("strengths", []),
+        "weaknesses": (lang_progress or {}).get("weaknesses", []),
+    }
+
     # Append user message
     user_msg = Message(speaker="user", text=body.text)
     await db_service.append_message(body.session_id, user_msg.model_dump())
 
-    # Build conversation history for Claude (alternating user/assistant)
+    # Build conversation history
     history = []
     for msg in session.get("messages", []):
         role = "user" if msg["speaker"] == "user" else "assistant"
         history.append({"role": role, "content": msg["text"]})
 
-    # Collect full tutor response to store it, while streaming to client
     collected = []
 
     async def generate():
         async for chunk in claude_service.stream_tutor_response(
-            user_profile=user,
+            user_profile=user_for_session,
             lesson_plan=lesson_plan,
             conversation_history=history,
             user_message=body.text,
@@ -139,11 +170,12 @@ async def send_message(body: MessageRequest):
             collected.append(chunk)
             yield f"data: {json.dumps(chunk)}\n\n"
 
-        # After stream ends, persist tutor message
         full_response = "".join(collected)
         tutor_msg = Message(speaker="tutor", text=full_response)
         await db_service.append_message(body.session_id, tutor_msg.model_dump())
-        translation = await asyncio.to_thread(claude_service.translate_text, full_response, user["target_language"], user["native_language"])
+        translation = await asyncio.to_thread(
+            claude_service.translate_text, full_response, active_lang, user["native_language"]
+        )
         yield f"data: [TRANSLATION]:{json.dumps(translation)}\n\n"
         yield "data: [DONE]\n\n"
 
@@ -164,11 +196,12 @@ async def end_session(body: EndSessionRequest):
     if not lesson_plan:
         raise HTTPException(404, "Lesson plan not found")
 
-    # Mark session as ended
     await db_service.end_session(body.session_id)
 
-    # Evaluate via Gemini Evaluator (defensive: keep existing profile on failure)
     user = await db_service.get_user(body.user_id)
+    active_lang = (user or {}).get("active_language", "spa")
+    lang_progress = _get_active_lang_progress(user or {})
+
     try:
         evaluation = claude_service.evaluate_session(
             session_id=body.session_id,
@@ -177,36 +210,38 @@ async def end_session(body: EndSessionRequest):
         )
         eval_dict = evaluation.model_dump()
         await db_service.save_evaluation(eval_dict)
-        # Only promote the new CEFR level if model is confident enough
+
         new_cefr = (
             evaluation.cefr_estimate
             if evaluation.confidence_score >= 0.4
-            else (user or {}).get("current_cefr_level", "A1")
+            else (lang_progress or {}).get("current_cefr_level", "A1")
         )
-        new_weaknesses = list(dict.fromkeys(evaluation.weaknesses + (user or {}).get("weaknesses", [])))[:10]
-        new_strengths = list(dict.fromkeys(evaluation.achieved_objectives + (user or {}).get("strengths", [])))[:10]
+        existing_weaknesses = (lang_progress or {}).get("weaknesses", [])
+        existing_strengths = (lang_progress or {}).get("strengths", [])
+        new_weaknesses = list(dict.fromkeys(evaluation.weaknesses + existing_weaknesses))[:10]
+        new_strengths = list(dict.fromkeys(evaluation.achieved_objectives + existing_strengths))[:10]
     except Exception:
         evaluation = None
         eval_dict = {}
-        new_cefr = (user or {}).get("current_cefr_level", "A1")
-        new_weaknesses = (user or {}).get("weaknesses", [])
-        new_strengths = (user or {}).get("strengths", [])
+        new_cefr = (lang_progress or {}).get("current_cefr_level", "A1")
+        new_weaknesses = (lang_progress or {}).get("weaknesses", [])
+        new_strengths = (lang_progress or {}).get("strengths", [])
 
     if user:
-        await db_service.update_user(body.user_id, {
+        await db_service.update_user_language_progress(body.user_id, active_lang, {
             "current_cefr_level": new_cefr,
             "weaknesses": new_weaknesses,
             "strengths": new_strengths,
         })
 
-        # Append session to history — include lesson title so planner can avoid repeats
         summary = SessionSummary(
             session_id=body.session_id,
             date=datetime.utcnow(),
             cefr_estimate=new_cefr,
             lesson_title=lesson_plan.get("title"),
+            language=active_lang,
         )
-        await db_service.append_session_to_history(body.user_id, summary.model_dump())
+        await db_service.append_to_language_history(body.user_id, active_lang, summary.model_dump())
 
     return eval_dict or {"session_id": body.session_id, "cefr_estimate": new_cefr}
 
@@ -216,8 +251,26 @@ async def end_session(body: EndSessionRequest):
 # ─────────────────────────────────────────────
 
 @router.get("/history/{user_id}")
-async def get_session_history(user_id: str):
+async def get_session_history(user_id: str, language: Optional[str] = Query(default=None)):
     user = await db_service.get_user(user_id)
     if not user:
         raise HTTPException(404, "User not found")
-    return user.get("history", [])
+
+    languages = user.get("languages", [])
+
+    if language:
+        # Return history for a specific language
+        for lang in languages:
+            if lang.get("language") == language:
+                return lang.get("history", [])
+        return []
+
+    # Return all history combined, each entry tagged with language
+    combined = []
+    for lang in languages:
+        lang_code = lang.get("language")
+        for entry in lang.get("history", []):
+            combined.append({**entry, "language": lang_code})
+    # Sort by date descending
+    combined.sort(key=lambda x: x.get("date", ""), reverse=True)
+    return combined

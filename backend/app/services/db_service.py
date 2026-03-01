@@ -41,6 +41,7 @@ async def get_user(user_id: str) -> Optional[dict]:
 
 
 async def update_user(user_id: str, updates: dict) -> bool:
+    """Generic top-level field updater (kept for backwards compatibility)."""
     db = get_db()
     updates["last_updated"] = datetime.utcnow()
     result = await db.users.update_one(
@@ -50,7 +51,85 @@ async def update_user(user_id: str, updates: dict) -> bool:
     return result.modified_count > 0
 
 
+async def update_user_info(user_id: str, updates: dict) -> bool:
+    """Update top-level scalar fields (name, native_language, active_language)."""
+    db = get_db()
+    updates["last_updated"] = datetime.utcnow()
+    result = await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": updates},
+    )
+    return result.modified_count > 0
+
+
+async def set_active_language(user_id: str, language: str) -> bool:
+    db = get_db()
+    result = await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": {"active_language": language, "last_updated": datetime.utcnow()}},
+    )
+    return result.modified_count > 0
+
+
+async def add_language(user_id: str, progress_dict: dict) -> bool:
+    """Push a new LanguageProgress subdocument onto languages array."""
+    db = get_db()
+    result = await db.users.update_one(
+        {"user_id": user_id},
+        {
+            "$push": {"languages": progress_dict},
+            "$set": {"last_updated": datetime.utcnow()},
+        },
+    )
+    return result.modified_count > 0
+
+
+async def remove_language(user_id: str, language: str) -> bool:
+    """Pull the LanguageProgress entry for the given language code."""
+    db = get_db()
+    result = await db.users.update_one(
+        {"user_id": user_id},
+        {
+            "$pull": {"languages": {"language": language}},
+            "$set": {"last_updated": datetime.utcnow()},
+        },
+    )
+    return result.modified_count > 0
+
+
+async def update_user_language_progress(user_id: str, language: str, updates: dict) -> bool:
+    """
+    $set fields inside languages.$[lang] using arrayFilters.
+    `updates` keys should be the sub-field names without the languages path prefix,
+    e.g. {"current_cefr_level": "B1", "strengths": [...], "weaknesses": [...]}.
+    """
+    db = get_db()
+    set_payload = {f"languages.$[lang].{k}": v for k, v in updates.items()}
+    set_payload["last_updated"] = datetime.utcnow()
+    result = await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": set_payload},
+        array_filters=[{"lang.language": language}],
+    )
+    return result.modified_count > 0
+
+
+async def append_to_language_history(user_id: str, language: str, summary: dict) -> bool:
+    """Push a SessionSummary dict into the matching language's history array."""
+    db = get_db()
+    result = await db.users.update_one(
+        {"user_id": user_id},
+        {
+            "$push": {"languages.$[lang].history": summary},
+            "$set": {"last_updated": datetime.utcnow()},
+        },
+        array_filters=[{"lang.language": language}],
+    )
+    return result.modified_count > 0
+
+
 async def append_session_to_history(user_id: str, summary: dict) -> bool:
+    """Legacy flat-history push — kept for compatibility but no longer used."""
     db = get_db()
     result = await db.users.update_one(
         {"user_id": user_id},

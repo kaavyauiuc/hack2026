@@ -54,7 +54,14 @@ export default function Dashboard() {
     )
   }
 
-  const reversedHistory = [...history].reverse()
+  // Find the active language's progress record
+  const activeLangProgress = profile
+    ? (profile.languages || []).find(l => l.language === profile.active_language)
+    : null
+
+  // Filter history to active language only
+  const activeHistory = activeLangProgress ? (activeLangProgress.history || []) : history
+  const reversedHistory = [...activeHistory].reverse()
 
   return (
     <div className="grid-bg" style={s.page}>
@@ -69,20 +76,20 @@ export default function Dashboard() {
               <div style={s.heroLeft}>
                 <div style={s.greeting}>
                   <em style={{ fontStyle: 'italic', fontWeight: 300 }}>
-                    {HELLO_IN[profile.target_language] ?? 'Hello'},
+                    {HELLO_IN[profile.active_language] ?? 'Hello'},
                   </em>{' '}
                   {profile.name}
                 </div>
                 <div style={s.langs}>
                   {LANG_NAMES[profile.native_language] || profile.native_language}
                   <span style={s.arrowSep}>→</span>
-                  {LANG_NAMES[profile.target_language] || profile.target_language}
+                  {LANG_NAMES[profile.active_language] || profile.active_language}
                 </div>
-                <div style={s.cefrLabel}>{CEFR_LABELS[profile.current_cefr_level] || ''}</div>
+                <div style={s.cefrLabel}>{CEFR_LABELS[activeLangProgress?.current_cefr_level] || ''}</div>
               </div>
               <div style={s.heroRight}>
-                <div style={s.cefrDisplay}>{profile.current_cefr_level}</div>
-                <div style={s.sessionCount}>{history.length} session{history.length !== 1 ? 's' : ''}</div>
+                <div style={s.cefrDisplay}>{activeLangProgress?.current_cefr_level ?? 'A1'}</div>
+                <div style={s.sessionCount}>{activeHistory.length} session{activeHistory.length !== 1 ? 's' : ''}</div>
               </div>
             </div>
 
@@ -94,27 +101,27 @@ export default function Dashboard() {
         {/* CEFR chart */}
         <div className="reveal-2 card" style={s.card}>
           <div className="label-caps" style={{ marginBottom: 18 }}>Progress</div>
-          <ProgressChart history={history} />
+          <ProgressChart history={activeHistory} />
         </div>
 
         {/* Strengths / Weaknesses */}
-        {profile && (profile.strengths?.length > 0 || profile.weaknesses?.length > 0) && (
+        {activeLangProgress && (activeLangProgress.strengths?.length > 0 || activeLangProgress.weaknesses?.length > 0) && (
           <div className="reveal-3" style={s.twoCol}>
-            {profile.strengths?.length > 0 && (
+            {activeLangProgress.strengths?.length > 0 && (
               <div className="card" style={s.card}>
                 <div className="label-caps" style={{ marginBottom: 14 }}>Strengths</div>
                 <div style={s.tagCloud}>
-                  {profile.strengths.map((t, i) => (
+                  {activeLangProgress.strengths.map((t, i) => (
                     <span key={i} style={s.tagGreen}>{t}</span>
                   ))}
                 </div>
               </div>
             )}
-            {profile.weaknesses?.length > 0 && (
+            {activeLangProgress.weaknesses?.length > 0 && (
               <div className="card" style={s.card}>
                 <div className="label-caps" style={{ marginBottom: 14 }}>To improve</div>
                 <div style={s.tagCloud}>
-                  {profile.weaknesses.map((t, i) => (
+                  {activeLangProgress.weaknesses.map((t, i) => (
                     <span key={i} style={s.tagOrange}>{t}</span>
                   ))}
                 </div>
@@ -126,10 +133,10 @@ export default function Dashboard() {
         {/* Session history */}
         <div className="reveal-4 card" style={{ ...s.card, marginBottom: 48 }}>
           <div className="label-caps" style={{ marginBottom: 18 }}>
-            Session history{history.length > 0 ? ` — ${history.length}` : ''}
+            Session history{activeHistory.length > 0 ? ` — ${activeHistory.length}` : ''}
           </div>
 
-          {history.length === 0 ? (
+          {activeHistory.length === 0 ? (
             <div style={s.empty}>
               No sessions yet.{' '}
               <button onClick={() => navigate('/session')} style={s.emptyLink}>
