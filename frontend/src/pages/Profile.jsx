@@ -219,7 +219,7 @@ export default function Profile() {
             {availableToAdd.length > 0 && !showAddLang && (
               <button style={s.addLangBtn} onClick={() => setShowAddLang(true)}>
                 <span style={{ fontSize: 24, lineHeight: 1, opacity: 0.4 }}>+</span>
-                <span style={{ fontFamily: 'Martian Mono, monospace', fontSize: 9, letterSpacing: '0.08em', opacity: 0.5 }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.08em', opacity: 0.5 }}>
                   add language
                 </span>
               </button>
@@ -239,7 +239,7 @@ export default function Profile() {
                   onClick={() => setAddLangCode(l)}
                 >
                   <span style={{ fontSize: 18 }}>{LANG_FLAGS[l]}</span>
-                  <span style={{ fontFamily: 'Instrument Serif, Georgia, serif', fontStyle: 'italic', fontSize: 13 }}>
+                  <span style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 13 }}>
                     {LANG_NAMES[l]}
                   </span>
                 </button>
@@ -374,7 +374,7 @@ const s = {
     flexShrink: 0,
   },
   avatarInitial: {
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontSize: 26,
     fontWeight: 400,
     fontStyle: 'italic',
@@ -383,7 +383,7 @@ const s = {
   heroText: { flex: 1 },
   nameRow: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5 },
   name: {
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontSize: 'clamp(26px, 5vw, 40px)',
     fontWeight: 400,
     letterSpacing: '-0.02em',
@@ -395,7 +395,7 @@ const s = {
     color: 'var(--dim)', cursor: 'pointer', fontSize: 15, padding: '2px 4px',
   },
   since: {
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 10, color: 'var(--muted)',
     letterSpacing: '0.04em', fontWeight: 300,
   },
@@ -404,31 +404,31 @@ const s = {
   editInput: {
     background: 'var(--surface)', border: '1px solid var(--border)',
     borderRadius: 8, color: 'var(--text)',
-    fontFamily: 'Instrument Serif, Georgia, serif', fontStyle: 'italic', fontSize: 20,
+    fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 20,
     padding: '9px 13px', outline: 'none', width: '100%',
   },
   editSelect: {
     background: 'var(--surface)', border: '1px solid var(--border)',
     borderRadius: 8, color: 'var(--text)',
-    fontFamily: 'Martian Mono, monospace', fontSize: 11,
+    fontFamily: 'var(--font-mono)', fontSize: 11,
     padding: '9px 13px', outline: 'none', width: '100%', appearance: 'none',
   },
   editBtns: { display: 'flex', gap: 8, marginTop: 4 },
   btnSave: {
     padding: '8px 18px', background: 'var(--accent)', border: 'none', borderRadius: 6,
-    color: '#fff', fontFamily: 'Martian Mono, monospace', fontSize: 10,
+    color: '#fff', fontFamily: 'var(--font-mono)', fontSize: 10,
     letterSpacing: '0.06em', cursor: 'pointer',
   },
   btnCancel: {
     padding: '8px 14px', background: 'none', border: '1px solid var(--border)',
-    borderRadius: 6, color: 'var(--muted)', fontFamily: 'Martian Mono, monospace',
+    borderRadius: 6, color: 'var(--muted)', fontFamily: 'var(--font-mono)',
     fontSize: 10, letterSpacing: '0.06em', cursor: 'pointer',
   },
 
   errorBanner: {
     padding: '10px 14px', background: 'rgba(179,48,32,0.07)',
     border: '1px solid rgba(179,48,32,0.2)', borderRadius: 8,
-    color: 'var(--red)', fontFamily: 'Martian Mono, monospace',
+    color: 'var(--red)', fontFamily: 'var(--font-mono)',
     fontSize: 10, letterSpacing: '0.04em', marginBottom: 14,
   },
 
@@ -466,21 +466,21 @@ const s = {
   },
   langCardFlag: { fontSize: 28, lineHeight: 1, marginTop: 6 },
   langCardName: {
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontStyle: 'italic', fontSize: 14, fontWeight: 400, color: 'var(--text)',
   },
   langCardNative: {
-    fontFamily: 'Martian Mono, monospace', fontSize: 9,
+    fontFamily: 'var(--font-mono)', fontSize: 9,
     color: 'var(--muted)', letterSpacing: '0.04em',
   },
   langCardLevel: isActive => ({
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontSize: 22, fontWeight: 400,
     color: isActive ? 'var(--accent)' : 'var(--muted)',
     marginTop: 4,
   }),
   langCardSessions: {
-    fontFamily: 'Martian Mono, monospace', fontSize: 8,
+    fontFamily: 'var(--font-mono)', fontSize: 8,
     color: 'var(--dim)', letterSpacing: '0.06em',
   },
 
@@ -509,12 +509,12 @@ const s = {
     background: isSelected ? 'var(--accent)' : 'var(--surface)',
     border: `1px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`,
     borderRadius: 6, color: isSelected ? '#fff' : 'var(--muted)',
-    fontFamily: 'Martian Mono, monospace', fontSize: 10,
+    fontFamily: 'var(--font-mono)', fontSize: 10,
     cursor: 'pointer', transition: 'all 0.12s',
   }),
 
   addLangErr: {
-    fontFamily: 'Martian Mono, monospace', fontSize: 10,
+    fontFamily: 'var(--font-mono)', fontSize: 10,
     color: 'var(--red)', marginBottom: 8, letterSpacing: '0.04em',
   },
 
@@ -524,12 +524,12 @@ const s = {
   },
   statCard: { padding: '18px 16px 16px', textAlign: 'center' },
   statBig: {
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontSize: 38, fontWeight: 400,
     color: 'var(--accent)', lineHeight: 1, marginBottom: 4,
   },
   statSub: {
-    fontFamily: 'Martian Mono, monospace', fontSize: 9,
+    fontFamily: 'var(--font-mono)', fontSize: 9,
     color: 'var(--dim)', letterSpacing: '0.08em',
   },
 
@@ -555,7 +555,7 @@ const s = {
     zIndex: 0, opacity: filled ? 0.7 : 1,
   }),
   cefrLabelText: current => ({
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: current ? 11 : 9, fontWeight: current ? 500 : 300,
     color: current ? 'var(--accent)' : 'var(--dim)',
     letterSpacing: '0.06em',
@@ -569,20 +569,20 @@ const s = {
   tagGreen: {
     padding: '4px 10px', background: 'var(--sage-dim)',
     border: '1px solid rgba(55,107,82,0.2)', borderRadius: 20,
-    fontSize: 10, color: 'var(--sage)', fontFamily: 'Martian Mono, monospace',
+    fontSize: 10, color: 'var(--sage)', fontFamily: 'var(--font-mono)',
     letterSpacing: '0.04em',
   },
   tagBlue: {
     padding: '4px 10px', background: 'var(--accent-dim)',
     border: '1px solid rgba(15,82,160,0.18)', borderRadius: 20,
-    fontSize: 10, color: 'var(--accent)', fontFamily: 'Martian Mono, monospace',
+    fontSize: 10, color: 'var(--accent)', fontFamily: 'var(--font-mono)',
     letterSpacing: '0.04em',
   },
 
   resetRow: { display: 'flex', justifyContent: 'center', marginTop: 32 },
   resetBtn: {
     background: 'none', border: 'none',
-    fontFamily: 'Martian Mono, monospace', fontSize: 10,
+    fontFamily: 'var(--font-mono)', fontSize: 10,
     color: 'var(--dim)', cursor: 'pointer',
     textDecoration: 'underline', textUnderlineOffset: 3,
     letterSpacing: '0.04em',

@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useTheme, applyTheme } from '../theme.js'
 
 const LANG_FLAGS = {
   spa: '🇪🇸', fra: '🇫🇷', deu: '🇩🇪',
@@ -14,6 +15,11 @@ export default function Nav() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const activeLanguage = localStorage.getItem('target_language')
+  const theme = useTheme()
+
+  function toggleTheme() {
+    applyTheme(theme === 'phosphene' ? 'atelier' : 'phosphene')
+  }
 
   return (
     <nav style={s.nav}>
@@ -30,6 +36,9 @@ export default function Nav() {
       <div style={s.links}>
         <NavLink label="dashboard" to="/dashboard" active={pathname === '/dashboard'} navigate={navigate} />
         <NavLink label="profile"   to="/profile"   active={pathname === '/profile'}   navigate={navigate} />
+        <button style={s.themeBtn} onClick={toggleTheme} title={`Switch to ${theme === 'phosphene' ? 'Atelier' : 'Phosphene'}`}>
+          {theme === 'phosphene' ? '◑' : '◐'}
+        </button>
         <button style={s.sessionBtn} onClick={() => navigate('/session')}>
           new session ↗
         </button>
@@ -68,10 +77,9 @@ const s = {
     padding: 0,
     display: 'flex',
     alignItems: 'baseline',
-    gap: 0,
   },
   brandL: {
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontStyle: 'italic',
     fontSize: 18,
     fontWeight: 400,
@@ -79,7 +87,7 @@ const s = {
     letterSpacing: '-0.01em',
   },
   brandR: {
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 11,
     fontWeight: 500,
     color: 'var(--muted)',
@@ -90,7 +98,7 @@ const s = {
     background: 'var(--accent-dim)',
     border: '1px solid rgba(15,82,160,0.2)',
     borderRadius: 20,
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 9,
     fontWeight: 400,
     color: 'var(--accent)',
@@ -108,7 +116,7 @@ const s = {
     background: 'none',
     border: 'none',
     color: active ? 'var(--accent)' : 'var(--muted)',
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 10,
     fontWeight: active ? 500 : 400,
     letterSpacing: '0.06em',
@@ -125,19 +133,32 @@ const s = {
     borderRadius: 1,
     display: 'block',
   },
+  themeBtn: {
+    padding: '6px 10px',
+    background: 'none',
+    border: '1px solid var(--border)',
+    borderRadius: 6,
+    color: 'var(--muted)',
+    fontFamily: 'var(--font-mono)',
+    fontSize: 14,
+    cursor: 'pointer',
+    transition: 'color 0.15s, border-color 0.15s',
+    lineHeight: 1,
+    marginLeft: 4,
+  },
   sessionBtn: {
-    marginLeft: 10,
+    marginLeft: 6,
     padding: '7px 15px',
     background: 'var(--accent)',
     border: 'none',
     borderRadius: 6,
     color: '#fff',
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 10,
     fontWeight: 500,
     letterSpacing: '0.04em',
     cursor: 'pointer',
-    boxShadow: '0 2px 12px rgba(15,82,160,0.28)',
-    transition: 'box-shadow 0.15s, background 0.15s',
+    boxShadow: '0 2px 12px var(--accent-glow)',
+    transition: 'box-shadow 0.15s',
   },
 }

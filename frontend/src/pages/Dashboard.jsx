@@ -194,7 +194,7 @@ const s = {
   },
   heroLeft: {},
   eyebrow: {
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 10,
     color: 'var(--accent)',
     letterSpacing: '0.10em',
@@ -203,7 +203,7 @@ const s = {
   },
   arrowSep: { margin: '0 8px', color: 'var(--dim)' },
   greeting: {
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontSize: 'clamp(30px, 5.5vw, 48px)',
     fontWeight: 400,
     letterSpacing: '-0.02em',
@@ -212,7 +212,7 @@ const s = {
     marginBottom: 8,
   },
   cefrLabel: {
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 10,
     color: 'var(--muted)',
     letterSpacing: '0.08em',
@@ -232,7 +232,7 @@ const s = {
     marginBottom: 8,
   },
   cefrDisplay: {
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontSize: 'clamp(38px, 7vw, 54px)',
     fontWeight: 400,
     letterSpacing: '-0.04em',
@@ -240,7 +240,7 @@ const s = {
     lineHeight: 1,
   },
   sessionCount: {
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 10,
     color: 'var(--dim)',
     textAlign: 'right',
@@ -267,7 +267,7 @@ const s = {
     borderRadius: 20,
     fontSize: 10,
     color: 'var(--sage)',
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     letterSpacing: '0.04em',
   },
   tagBlue: {
@@ -277,7 +277,7 @@ const s = {
     borderRadius: 20,
     fontSize: 10,
     color: 'var(--accent)',
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     letterSpacing: '0.04em',
   },
   historyHeader: {
@@ -287,7 +287,7 @@ const s = {
     marginBottom: 18,
   },
   historyCount: {
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 10,
     color: 'var(--dim)',
     letterSpacing: '0.06em',
@@ -299,7 +299,7 @@ const s = {
     letterSpacing: '0.18em',
     textTransform: 'lowercase',
     color: 'var(--dim)',
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     borderBottom: '1px solid var(--border-subtle)',
     marginBottom: 4,
   },
@@ -312,7 +312,7 @@ const s = {
   }),
   rowTitle: {
     flex: 1,
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontStyle: 'italic',
     fontSize: 15,
     fontWeight: 400,
@@ -324,7 +324,7 @@ const s = {
   },
   rowDate: {
     width: 130,
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 10,
     color: 'var(--muted)',
     letterSpacing: '0.04em',
@@ -332,7 +332,7 @@ const s = {
   rowCefr: {
     width: 56,
     textAlign: 'right',
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontSize: 18,
     fontWeight: 400,
     color: 'var(--accent)',
@@ -342,7 +342,7 @@ const s = {
     color: 'var(--muted)',
     fontSize: 11,
     padding: '28px 16px',
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     letterSpacing: '0.04em',
   },
   emptyLink: {
@@ -350,7 +350,7 @@ const s = {
     border: 'none',
     color: 'var(--accent)',
     cursor: 'pointer',
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontStyle: 'italic',
     fontSize: 15,
     fontWeight: 400,

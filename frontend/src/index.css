@@ -1,4 +1,4 @@
-/* ── CSS Variables ───────────────────────────────────────────── */
+/* ── Phosphene theme (default) ───────────────────────────────── */
 :root {
   --bg:            #F8F6F1;
   --surface:       #FFFFFF;
@@ -22,23 +22,67 @@
   --red:           #B33020;
   --red-glow:      rgba(179, 48, 32, 0.16);
 
+  --font-display:  'Instrument Serif', Georgia, serif;
+  --font-mono:     'Martian Mono', monospace;
+
   --radius:        8px;
   --radius-lg:     12px;
   --radius-xl:     20px;
 }
 
+/* ── Atelier theme ───────────────────────────────────────────── */
+[data-theme="atelier"] {
+  --bg:            #0e0b09;
+  --surface:       #181410;
+  --surface-2:     #221c15;
+  --surface-3:     #2c2419;
+  --border:        #312718;
+  --border-subtle: #261f18;
+
+  --text:          #f2e8d5;
+  --muted:         #8c7b68;
+  --dim:           #54473c;
+
+  --accent:        #d4702a;
+  --accent-bright: #e07b35;
+  --accent-glow:   rgba(212, 112, 42, 0.14);
+  --accent-dim:    rgba(212, 112, 42, 0.10);
+
+  --sage:          #4e8e6e;
+  --sage-dim:      rgba(78, 142, 110, 0.12);
+
+  --red:           #c44040;
+  --red-glow:      rgba(196, 64, 64, 0.22);
+
+  --font-display:  'Fraunces', Georgia, serif;
+  --font-mono:     'Overpass Mono', monospace;
+}
+
+/* ── Base ────────────────────────────────────────────────────── */
+body {
+  font-family: var(--font-mono);
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+::selection { background: var(--accent-dim); }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--surface-2); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
 /* ── Keyframes ───────────────────────────────────────────────── */
 @keyframes ascend {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-    filter: blur(3px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
+  from { opacity: 0; transform: translateY(14px); filter: blur(3px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
 
 @keyframes fadeIn {
@@ -57,13 +101,13 @@
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.94); filter: blur(4px); }
+  from { opacity: 0; transform: scale(0.93); filter: blur(4px); }
   to   { opacity: 1; transform: scale(1);    filter: blur(0);   }
 }
 
 @keyframes pulseRing {
-  0%   { transform: scale(1);    opacity: 0.5; }
-  100% { transform: scale(1.9);  opacity: 0;   }
+  0%   { transform: scale(1);   opacity: 0.55; }
+  100% { transform: scale(1.85); opacity: 0;   }
 }
 
 @keyframes blink {
@@ -75,18 +119,21 @@
   to { transform: rotate(360deg); }
 }
 
-@keyframes scanLine {
-  from { transform: scaleX(0); transform-origin: left; }
-  to   { transform: scaleX(1); transform-origin: left; }
-}
+/* ── Staggered reveals — Phosphene ──────────────────────────── */
+:root .reveal-0 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.04s; }
+:root .reveal-1 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.12s; }
+:root .reveal-2 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.21s; }
+:root .reveal-3 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.30s; }
+:root .reveal-4 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.39s; }
+:root .reveal-5 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.48s; }
 
-/* ── Staggered reveal classes ────────────────────────────────── */
-.reveal-0 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.04s; }
-.reveal-1 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.12s; }
-.reveal-2 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.21s; }
-.reveal-3 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.30s; }
-.reveal-4 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.39s; }
-.reveal-5 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.48s; }
+/* ── Staggered reveals — Atelier ────────────────────────────── */
+[data-theme="atelier"] .reveal-0 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.04s; }
+[data-theme="atelier"] .reveal-1 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.14s; }
+[data-theme="atelier"] .reveal-2 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.24s; }
+[data-theme="atelier"] .reveal-3 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.34s; }
+[data-theme="atelier"] .reveal-4 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.44s; }
+[data-theme="atelier"] .reveal-5 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.54s; }
 
 /* ── Chat bubble entrance ────────────────────────────────────── */
 .msg-tutor { animation: slideInLeft  0.30s cubic-bezier(0.34,1.38,0.64,1) both; }
@@ -95,32 +142,53 @@
 /* ── Modal entrance ──────────────────────────────────────────── */
 .modal-enter { animation: scaleIn 0.28s cubic-bezier(0.34,1.38,0.64,1) both; }
 
-/* ── Dot-grid background ─────────────────────────────────────── */
+/* ── Backgrounds ─────────────────────────────────────────────── */
 .grid-bg {
   background-color: var(--bg);
   background-image:
     radial-gradient(ellipse 80% 38% at 50% 0%, rgba(15,82,160,0.07) 0%, transparent 65%),
     radial-gradient(circle, #C8C4BB 0.8px, transparent 0.8px);
   background-size: auto, 24px 24px;
+  transition: background-color 0.3s;
 }
 
-/* ── Surface card ────────────────────────────────────────────── */
+[data-theme="atelier"] .grid-bg {
+  background-image:
+    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(212,112,42,0.07) 0%, transparent 65%),
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+  background-size: auto, 40px 40px, 40px 40px;
+}
+
+/* ── Card ────────────────────────────────────────────────────── */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 18px rgba(0,0,0,0.05);
+  transition: background 0.3s, border-color 0.3s;
+}
+
+[data-theme="atelier"] .card {
+  box-shadow: none;
 }
 
 /* ── Label caps ──────────────────────────────────────────────── */
 .label-caps {
-  font-family: 'Martian Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 500;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--accent);
   opacity: 0.75;
+}
+
+[data-theme="atelier"] .label-caps {
+  color: var(--muted);
+  opacity: 1;
+  font-size: 10px;
+  letter-spacing: 0.16em;
 }
 
 /* ── Spinner ─────────────────────────────────────────────────── */
@@ -142,10 +210,10 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
-  font-family: 'Martian Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   outline: none;
-  transition: border-color 0.18s, box-shadow 0.18s;
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.3s;
   appearance: none;
   -webkit-appearance: none;
   box-shadow: 0 1px 2px rgba(0,0,0,0.04) inset;
@@ -153,5 +221,13 @@
 .field:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-dim), 0 1px 2px rgba(0,0,0,0.04) inset;
+}
+[data-theme="atelier"] .field {
+  box-shadow: none;
+  padding: 11px 14px;
+  font-size: 13px;
+}
+[data-theme="atelier"] .field:focus {
+  box-shadow: none;
 }
 .field::placeholder { color: var(--dim); }

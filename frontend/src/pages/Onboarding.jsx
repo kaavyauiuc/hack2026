@@ -98,7 +98,7 @@ export default function Onboarding() {
               value={name}
               onChange={e => setName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleStart()}
-              style={{ fontFamily: 'Instrument Serif, Georgia, serif', fontSize: 18, padding: '11px 14px' }}
+              style={{ fontFamily: 'var(--font-display)', fontSize: 18, padding: '11px 14px' }}
             />
           </div>
 
@@ -199,20 +199,20 @@ const s = {
     marginBottom: 36,
   },
   wordmarkL: {
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontStyle: 'italic',
     fontSize: 20,
     fontWeight: 400,
     color: 'var(--accent)',
   },
   wordmarkR: {
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 12,
     fontWeight: 500,
     color: 'var(--muted)',
   },
   headline: {
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontSize: 'clamp(36px, 5.5vw, 58px)',
     fontWeight: 400,
     lineHeight: 1.08,
@@ -225,7 +225,7 @@ const s = {
     color: 'var(--accent)',
   },
   sub: {
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 11,
     color: 'var(--muted)',
     lineHeight: 1.9,
@@ -243,7 +243,7 @@ const s = {
     background: 'var(--accent-dim)',
     border: '1px solid rgba(15,82,160,0.18)',
     borderRadius: 20,
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 9,
     color: 'var(--accent)',
     letterSpacing: '0.08em',
@@ -274,7 +274,7 @@ const s = {
   }),
   langFlag: { fontSize: 18, lineHeight: 1 },
   langNative: {
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontStyle: 'italic',
     fontSize: 12,
     color: 'var(--text)',
@@ -282,7 +282,7 @@ const s = {
   langEn: {
     fontSize: 8,
     color: 'var(--muted)',
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     letterSpacing: '0.05em',
   },
   selDot: {
@@ -298,7 +298,7 @@ const s = {
     position: 'absolute', right: 13, top: '50%',
     transform: 'translateY(-50%)',
     color: 'var(--muted)', fontSize: 11, pointerEvents: 'none',
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
   },
   cefrRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 5 },
   cefrBtn: sel => ({
@@ -309,7 +309,7 @@ const s = {
     color: sel ? 'var(--accent)' : 'var(--muted)',
     cursor: 'pointer',
     textAlign: 'center',
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 11,
     transition: 'all 0.15s',
     outline: 'none',
@@ -320,7 +320,7 @@ const s = {
     marginTop: 3,
     opacity: 0.6,
     letterSpacing: '0.04em',
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
   },
   formRule: {
     height: 1,
@@ -334,7 +334,7 @@ const s = {
     borderRadius: 'var(--radius)',
     background: active ? 'var(--accent)' : 'var(--surface-2)',
     color: active ? '#fff' : 'var(--dim)',
-    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontSize: 19,
     fontWeight: 400,
     letterSpacing: '-0.01em',
@@ -349,7 +349,7 @@ const s = {
     marginTop: 12,
     fontSize: 10,
     color: 'var(--red)',
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     textAlign: 'center',
     letterSpacing: '0.04em',
   },

@@ -40,7 +40,7 @@ const s = {
     minWidth: 48,
   }),
   label: isUser => ({
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 9,
     letterSpacing: '0.18em',
     textTransform: 'lowercase',
@@ -59,7 +59,7 @@ const s = {
     position: 'relative',
   }),
   text: isUser => ({
-    fontFamily: isUser ? 'Martian Mono, monospace' : 'Instrument Serif, Georgia, serif',
+    fontFamily: isUser ? 'var(--font-mono)' : 'var(--font-display)',
     fontSize: isUser ? 12 : 15,
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
@@ -79,7 +79,7 @@ const s = {
     marginTop: 10,
     paddingTop: 10,
     borderTop: '1px solid var(--border-subtle)',
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 10,
     fontStyle: 'normal',
     color: 'var(--muted)',
@@ -103,7 +103,7 @@ const s = {
     lineHeight: 1,
     opacity: 0.65,
     transition: 'opacity 0.15s',
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
   },
   loadingDots: {
     display: 'flex',
@@ -111,7 +111,7 @@ const s = {
     alignItems: 'center',
   },
   dot: {
-    fontFamily: 'Martian Mono, monospace',
+    fontFamily: 'var(--font-mono)',
     fontSize: 20,
     color: 'var(--accent)',
     opacity: 0.5,
