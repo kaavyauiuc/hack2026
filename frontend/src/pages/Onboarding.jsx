@@ -68,7 +68,7 @@ export default function Onboarding() {
         {/* Left column — brand + copy */}
         <div style={s.left}>
           <div className="reveal-0" style={s.wordmark}>
-            <span style={s.wordmarkL}>Lingua</span><span style={s.wordmarkR}>AI</span>
+            <span style={s.wordmarkL}>Rosetta</span>
           </div>
           <h1 className="reveal-1" style={s.headline}>
             Your personal<br />

@@ -25,7 +25,7 @@ export default function Nav() {
     <nav style={s.nav}>
       <div style={s.brandRow}>
         <button style={s.brand} onClick={() => navigate('/dashboard')}>
-          <span style={s.brandL}>Lingua</span><span style={s.brandR}>AI</span>
+          <span style={s.brandL}>Rosetta</span>
         </button>
         {activeLanguage && LANG_FLAGS[activeLanguage] && (
           <span style={s.langPill}>

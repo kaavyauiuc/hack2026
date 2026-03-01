@@ -222,7 +222,7 @@ export default function Session() {
       <header style={s.header}>
         <div style={s.headerLeft}>
           <span style={s.logo}>
-            <em style={s.logoL}>Lingua</em><span style={s.logoR}>AI</span>
+            <em style={s.logoL}>Rosetta</em>
           </span>
           {lessonTitle && <span style={s.lessonBadge}>{lessonTitle}</span>}
         </div>
