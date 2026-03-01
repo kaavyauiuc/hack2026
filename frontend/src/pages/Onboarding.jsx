@@ -145,10 +145,12 @@ export default function Onboarding() {
               {CEFR.map(c => {
                 const sel = cefrLevel === c
                 return (
-                  <button key={c} style={s.cefrBtn(sel)} onClick={() => setCefrLevel(c)} title={CEFR_DESC[c]}>
-                    <span style={{ display: 'block', fontWeight: sel ? 500 : 300 }}>{c}</span>
-                    <span style={s.cefrSub}>{CEFR_DESC[c]}</span>
-                  </button>
+                  <div key={c} className="tooltip-wrap">
+                    <span className="tooltip">{CEFR_DESC[c]}</span>
+                    <button style={s.cefrBtn(sel)} onClick={() => setCefrLevel(c)}>
+                      <span style={{ display: 'block', fontWeight: sel ? 500 : 300 }}>{c}</span>
+                    </button>
+                  </div>
                 )
               })}
             </div>
@@ -302,6 +304,8 @@ const s = {
   },
   cefrRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 5 },
   cefrBtn: sel => ({
+    width: '100%',
+    height: 54,
     padding: '9px 3px 7px',
     borderRadius: 6,
     border: `1.5px solid ${sel ? 'var(--accent)' : 'var(--border)'}`,

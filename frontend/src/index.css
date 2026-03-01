@@ -231,3 +231,29 @@ body {
   box-shadow: none;
 }
 .field::placeholder { color: var(--dim); }
+
+/* ── Tooltip ─────────────────────────────────────────────────── */
+.tooltip-wrap {
+  position: relative;
+}
+.tooltip-wrap .tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  padding: 3px 7px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+.tooltip-wrap:hover .tooltip {
+  opacity: 1;
+}
