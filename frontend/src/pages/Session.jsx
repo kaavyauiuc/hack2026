@@ -364,7 +364,6 @@ const s = {
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    background: 'var(--bg)',
   },
   header: {
     padding: '14px 24px',
