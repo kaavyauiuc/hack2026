@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MicButton, { useAudioRecorder } from '../components/AudioRecorder.jsx'
 import ChatBubble from '../components/ChatBubble.jsx'
-import { startSession, endSession, sendMessage, transcribeAudio, synthesizeSpeech, getUserProfile } from '../services/api.js'
+import AvatarPanel from '../components/AvatarPanel.jsx'
+import { startSession, endSession, sendMessage, transcribeAudio, synthesizeSpeech, animateAvatar, getUserProfile } from '../services/api.js'
 
 const LANG_ABBR = {
   spa: 'ES', fra: 'FR', deu: 'DE', cmn: 'ZH', jpn: 'JA',
@@ -27,6 +28,11 @@ export default function Session() {
   const [textInput, setTextInput] = useState('')
   const [nativeLangMode, setNativeLangMode] = useState(false)
   const [playingId, setPlayingId] = useState(null)
+
+  // Avatar video state
+  const [avatarVideoUrl, setAvatarVideoUrl] = useState(null)
+  const [avatarVideoKey, setAvatarVideoKey] = useState(0)
+  const [avatarLoading, setAvatarLoading] = useState(false)
 
   const chatBottomRef = useRef(null)
   const currentAudioRef = useRef(null)
@@ -67,7 +73,18 @@ export default function Session() {
   function fetchTTS(msgId, text) {
     setMessages(prev => prev.map(m => m.id === msgId ? { ...m, audioLoading: true } : m))
     synthesizeSpeech(text, targetLang)
-      .then(url => setMessages(prev => prev.map(m => m.id === msgId ? { ...m, audioUrl: url, audioLoading: false } : m)))
+      .then(({ url, blob }) => {
+        setMessages(prev => prev.map(m => m.id === msgId ? { ...m, audioUrl: url, audioLoading: false } : m))
+        // Kick off avatar video generation in parallel — non-blocking
+        setAvatarLoading(true)
+        animateAvatar(blob)
+          .then(videoUrl => {
+            setAvatarVideoUrl(videoUrl)
+            setAvatarVideoKey(k => k + 1)
+          })
+          .catch(e => console.warn('[avatar]', e))
+          .finally(() => setAvatarLoading(false))
+      })
       .catch(() => setMessages(prev => prev.map(m => m.id === msgId ? { ...m, audioLoading: false } : m)))
   }
 
@@ -214,22 +231,34 @@ export default function Session() {
         </button>
       </header>
 
-      {/* Chat */}
-      <div style={s.chatArea}>
-        <div style={s.chatInner}>
-          {messages.map(m => (
-            <ChatBubble
-              key={m.id}
-              speaker={m.speaker}
-              text={m.text}
-              translation={m.translation}
-              audioLoading={m.audioLoading}
-              isPlaying={playingId === m.id}
-              onPlay={m.audioUrl && playingId !== m.id ? () => handlePlay(m.id, m.audioUrl) : undefined}
-              onPause={playingId === m.id ? handlePause : undefined}
-            />
-          ))}
-          <div ref={chatBottomRef} />
+      {/* Main: avatar + chat side-by-side */}
+      <div style={s.mainArea}>
+        {/* Avatar column */}
+        <div style={s.avatarCol}>
+          <AvatarPanel
+            videoUrl={avatarVideoUrl}
+            videoKey={avatarVideoKey}
+            isLoading={avatarLoading}
+          />
+        </div>
+
+        {/* Chat column */}
+        <div style={s.chatArea}>
+          <div style={s.chatInner}>
+            {messages.map(m => (
+              <ChatBubble
+                key={m.id}
+                speaker={m.speaker}
+                text={m.text}
+                translation={m.translation}
+                audioLoading={m.audioLoading}
+                isPlaying={playingId === m.id}
+                onPlay={m.audioUrl && playingId !== m.id ? () => handlePlay(m.id, m.audioUrl) : undefined}
+                onPause={playingId === m.id ? handlePause : undefined}
+              />
+            ))}
+            <div ref={chatBottomRef} />
+          </div>
         </div>
       </div>
 
@@ -391,8 +420,26 @@ const s = {
     cursor: 'pointer',
     transition: 'border-color 0.15s, color 0.15s',
   },
+  mainArea: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    overflow: 'hidden',
+    gap: 0,
+  },
+  avatarCol: {
+    width: 240,
+    flexShrink: 0,
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    padding: '28px 0 12px 20px',
+    borderRight: '1px solid var(--border)',
+    // Hide on small screens via a media query isn't possible in inline styles,
+    // but the layout will still work — avatar just stacks on mobile.
+  },
   chatArea: { flex: 1, overflowY: 'auto', padding: '28px 16px 12px' },
-  chatInner: { maxWidth: 680, margin: '0 auto' },
+  chatInner: { maxWidth: 560, margin: '0 auto' },
   bottom: {
     padding: '16px 20px 24px',
     borderTop: '1px solid var(--border)',

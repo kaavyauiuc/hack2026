@@ -73,5 +73,17 @@ export async function synthesizeSpeech(text, language) {
   })
   if (!response.ok) throw new Error(`TTS failed: ${response.status}`)
   const blob = await response.blob()
+  return { url: URL.createObjectURL(blob), blob }
+}
+
+export async function animateAvatar(audioBlob) {
+  const formData = new FormData()
+  formData.append('audio', audioBlob, 'audio.wav')
+  const response = await fetch('/video/animate', {
+    method: 'POST',
+    body: formData,
+  })
+  if (!response.ok) throw new Error(`Avatar animation failed: ${response.status}`)
+  const blob = await response.blob()
   return URL.createObjectURL(blob)
 }

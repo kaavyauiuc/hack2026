@@ -6,7 +6,7 @@ Run with: uvicorn app.main:app --reload --port 8000
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import users_router, sessions_router, speech_router
+from app.routes import users_router, sessions_router, speech_router, video_router
 
 app = FastAPI(
     title="Language Learning API",
@@ -33,6 +33,7 @@ app.add_middleware(
 app.include_router(users_router)
 app.include_router(sessions_router)
 app.include_router(speech_router)
+app.include_router(video_router)
 
 
 @app.get("/health")

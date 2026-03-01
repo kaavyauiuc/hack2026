@@ -9,6 +9,7 @@ export default defineConfig({
       '/user': 'http://localhost:8000',
       '/session': 'http://localhost:8000',
       '/speech': 'http://localhost:8000',
+      '/video': 'http://localhost:8000',
       '/health': 'http://localhost:8000',
     },
   },
