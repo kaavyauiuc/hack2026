@@ -63,45 +63,48 @@ export default function Onboarding() {
 
   return (
     <div className="grid-bg" style={s.root}>
-      <div style={s.wrap}>
+      <div style={s.layout}>
 
-        {/* Brand mark */}
-        <div className="reveal-0" style={s.brandRow}>
-          <span style={s.dot} />
-          <span style={s.brandName}>LinguaAI</span>
+        {/* Left column — brand + copy */}
+        <div style={s.left}>
+          <div className="reveal-0" style={s.wordmark}>
+            <span style={s.wordmarkL}>Lingua</span><span style={s.wordmarkR}>AI</span>
+          </div>
+          <h1 className="reveal-1" style={s.headline}>
+            Your personal<br />
+            <em style={s.headlineItal}>language<br />laboratory.</em>
+          </h1>
+          <p className="reveal-2" style={s.sub}>
+            Conversational AI tutoring,<br />
+            calibrated to your level<br />
+            and adapted every session.
+          </p>
+          <div className="reveal-3" style={s.tagRow}>
+            {['AI-adaptive', 'voice-first', 'CEFR-tracked'].map(t => (
+              <span key={t} style={s.tag}>{t}</span>
+            ))}
+          </div>
         </div>
 
-        {/* Headline */}
-        <h1 className="reveal-1" style={s.headline}>
-          Your personal<br />
-          <em style={s.headlineAccent}>language atelier.</em>
-        </h1>
-
-        <p className="reveal-2" style={s.sub}>
-          Conversational AI tutoring, calibrated to your level<br />and adapted after every session.
-        </p>
-
-        {/* Divider */}
-        <div className="reveal-2" style={s.rule} />
-
-        {/* Form */}
-        <div className="reveal-3 card" style={s.card}>
+        {/* Right column — form */}
+        <div className="reveal-2 card" style={s.card}>
 
           {/* Name */}
           <div style={s.section}>
-            <div className="label-caps" style={{ marginBottom: 10 }}>Your name</div>
+            <div className="label-caps" style={{ marginBottom: 10 }}>your name</div>
             <input
               className="field"
               placeholder="e.g. Alex"
               value={name}
               onChange={e => setName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleStart()}
+              style={{ fontFamily: 'Instrument Serif, Georgia, serif', fontSize: 18, padding: '11px 14px' }}
             />
           </div>
 
           {/* Target language */}
           <div style={s.section}>
-            <div className="label-caps" style={{ marginBottom: 10 }}>Language to learn</div>
+            <div className="label-caps" style={{ marginBottom: 10 }}>language to learn</div>
             <div style={s.langGrid}>
               {LANGUAGES.map(lang => {
                 const sel = targetLang === lang.code
@@ -110,7 +113,7 @@ export default function Onboarding() {
                     <span style={s.langFlag}>{lang.flag}</span>
                     <span style={s.langNative}>{lang.native}</span>
                     <span style={s.langEn}>{lang.label}</span>
-                    {sel && <span style={s.tick}>✓</span>}
+                    {sel && <div style={s.selDot} />}
                   </button>
                 )
               })}
@@ -119,7 +122,7 @@ export default function Onboarding() {
 
           {/* Native language */}
           <div style={s.section}>
-            <div className="label-caps" style={{ marginBottom: 10 }}>Native language</div>
+            <div className="label-caps" style={{ marginBottom: 10 }}>you speak</div>
             <div style={{ position: 'relative' }}>
               <select
                 className="field"
@@ -137,13 +140,13 @@ export default function Onboarding() {
 
           {/* CEFR level */}
           <div style={s.section}>
-            <div className="label-caps" style={{ marginBottom: 10 }}>Current level</div>
+            <div className="label-caps" style={{ marginBottom: 10 }}>current level</div>
             <div style={s.cefrRow}>
               {CEFR.map(c => {
                 const sel = cefrLevel === c
                 return (
                   <button key={c} style={s.cefrBtn(sel)} onClick={() => setCefrLevel(c)} title={CEFR_DESC[c]}>
-                    <span style={{ display: 'block', fontSize: 13, fontWeight: sel ? 600 : 400 }}>{c}</span>
+                    <span style={{ display: 'block', fontWeight: sel ? 500 : 300 }}>{c}</span>
                     <span style={s.cefrSub}>{CEFR_DESC[c]}</span>
                   </button>
                 )
@@ -151,11 +154,15 @@ export default function Onboarding() {
             </div>
           </div>
 
+          {/* Divider */}
+          <div style={s.formRule} />
+
           {/* Submit */}
           <button style={s.submitBtn(!!canSubmit && !loading)} onClick={handleStart} disabled={!canSubmit || loading}>
             {loading
-              ? <><span className="spinner" style={{ width: 14, height: 14, marginRight: 10 }} />Setting up…</>
-              : 'Begin →'}
+              ? <><span className="spinner" style={{ width: 13, height: 13, marginRight: 10 }} />setting up…</>
+              : <><em style={{ fontStyle: 'italic', fontWeight: 400 }}>begin</em>&ensp;↗</>
+            }
           </button>
 
           {error && <div style={s.error}>{error}</div>}
@@ -172,128 +179,178 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '48px 20px',
+    padding: '48px 24px',
   },
-  wrap: { maxWidth: 520, width: '100%' },
-  brandRow: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 },
-  dot: {
-    width: 8, height: 8, borderRadius: '50%',
-    background: 'var(--accent)', boxShadow: '0 0 10px var(--accent)',
+  layout: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: 56,
+    maxWidth: 860,
+    width: '100%',
+    alignItems: 'center',
+    '@media (max-width: 640px)': { gridTemplateColumns: '1fr' },
   },
-  brandName: {
-    fontFamily: 'Fraunces, Georgia, serif',
+  left: {
+    paddingRight: 8,
+  },
+  wordmark: {
+    display: 'flex',
+    alignItems: 'baseline',
+    marginBottom: 36,
+  },
+  wordmarkL: {
+    fontFamily: 'Instrument Serif, Georgia, serif',
     fontStyle: 'italic',
-    fontSize: 14,
+    fontSize: 20,
     fontWeight: 400,
+    color: 'var(--accent)',
+  },
+  wordmarkR: {
+    fontFamily: 'Martian Mono, monospace',
+    fontSize: 12,
+    fontWeight: 500,
     color: 'var(--muted)',
-    letterSpacing: '0.03em',
   },
   headline: {
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontSize: 'clamp(34px, 6.5vw, 50px)',
-    fontWeight: 600,
-    lineHeight: 1.1,
-    letterSpacing: '-0.025em',
+    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontSize: 'clamp(36px, 5.5vw, 58px)',
+    fontWeight: 400,
+    lineHeight: 1.08,
+    letterSpacing: '-0.02em',
     color: 'var(--text)',
-    marginBottom: 14,
+    marginBottom: 20,
   },
-  headlineAccent: {
+  headlineItal: {
     fontStyle: 'italic',
-    fontWeight: 300,
     color: 'var(--accent)',
   },
   sub: {
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 12,
+    fontFamily: 'Martian Mono, monospace',
+    fontSize: 11,
     color: 'var(--muted)',
-    lineHeight: 1.8,
+    lineHeight: 1.9,
     marginBottom: 28,
+    fontWeight: 300,
+    letterSpacing: '0.02em',
   },
-  rule: {
-    height: 1,
-    background: 'linear-gradient(90deg, var(--border) 0%, transparent 80%)',
-    marginBottom: 28,
+  tagRow: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 6,
   },
-  card: { padding: '28px 28px 24px' },
-  section: { marginBottom: 24 },
+  tag: {
+    padding: '4px 10px',
+    background: 'var(--accent-dim)',
+    border: '1px solid rgba(15,82,160,0.18)',
+    borderRadius: 20,
+    fontFamily: 'Martian Mono, monospace',
+    fontSize: 9,
+    color: 'var(--accent)',
+    letterSpacing: '0.08em',
+  },
+  card: {
+    padding: '30px 28px 26px',
+  },
+  section: { marginBottom: 22 },
   langGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: 8,
+    gap: 6,
   },
   langCard: sel => ({
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 4,
-    padding: '13px 6px 11px',
+    gap: 3,
+    padding: '11px 5px 9px',
     borderRadius: 'var(--radius)',
     border: `1.5px solid ${sel ? 'var(--accent)' : 'var(--border)'}`,
     background: sel ? 'var(--accent-dim)' : 'var(--surface-2)',
     cursor: 'pointer',
-    transition: 'border-color 0.15s, background 0.15s, transform 0.12s',
-    transform: sel ? 'scale(1.03)' : 'scale(1)',
+    transition: 'border-color 0.15s, background 0.15s',
     outline: 'none',
+    boxShadow: sel ? '0 0 0 2px var(--accent-dim)' : 'none',
   }),
-  langFlag: { fontSize: 20, lineHeight: 1 },
+  langFlag: { fontSize: 18, lineHeight: 1 },
   langNative: {
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontSize: 14,
-    fontWeight: 600,
+    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontStyle: 'italic',
+    fontSize: 12,
     color: 'var(--text)',
-    letterSpacing: '-0.01em',
   },
-  langEn: { fontSize: 10, color: 'var(--muted)', fontFamily: 'Overpass Mono, monospace' },
-  tick: { position: 'absolute', top: 6, right: 8, fontSize: 9, color: 'var(--accent)', fontWeight: 700 },
+  langEn: {
+    fontSize: 8,
+    color: 'var(--muted)',
+    fontFamily: 'Martian Mono, monospace',
+    letterSpacing: '0.05em',
+  },
+  selDot: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    width: 5,
+    height: 5,
+    borderRadius: '50%',
+    background: 'var(--accent)',
+  },
   arrow: {
-    position: 'absolute', right: 14, top: '50%',
+    position: 'absolute', right: 13, top: '50%',
     transform: 'translateY(-50%)',
-    color: 'var(--muted)', fontSize: 12, pointerEvents: 'none',
+    color: 'var(--muted)', fontSize: 11, pointerEvents: 'none',
+    fontFamily: 'Martian Mono, monospace',
   },
-  cefrRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 6 },
+  cefrRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 5 },
   cefrBtn: sel => ({
-    padding: '10px 4px 8px',
-    borderRadius: 8,
+    padding: '9px 3px 7px',
+    borderRadius: 6,
     border: `1.5px solid ${sel ? 'var(--accent)' : 'var(--border)'}`,
-    background: sel ? 'var(--accent-dim)' : 'var(--surface-2)',
-    color: sel ? 'var(--accent-bright)' : 'var(--muted)',
+    background: sel ? 'var(--accent-dim)' : 'var(--surface)',
+    color: sel ? 'var(--accent)' : 'var(--muted)',
     cursor: 'pointer',
     textAlign: 'center',
-    fontFamily: 'Overpass Mono, monospace',
+    fontFamily: 'Martian Mono, monospace',
+    fontSize: 11,
     transition: 'all 0.15s',
     outline: 'none',
   }),
   cefrSub: {
-    display: 'block', fontSize: 8, marginTop: 2,
-    opacity: 0.6, letterSpacing: '0.04em',
-    fontFamily: 'Overpass Mono, monospace',
+    display: 'block',
+    fontSize: 7,
+    marginTop: 3,
+    opacity: 0.6,
+    letterSpacing: '0.04em',
+    fontFamily: 'Martian Mono, monospace',
+  },
+  formRule: {
+    height: 1,
+    background: 'var(--border-subtle)',
+    marginBottom: 20,
   },
   submitBtn: active => ({
     width: '100%',
     padding: '14px',
-    marginTop: 4,
     border: 'none',
     borderRadius: 'var(--radius)',
-    background: active ? 'var(--accent)' : 'var(--surface-3)',
+    background: active ? 'var(--accent)' : 'var(--surface-2)',
     color: active ? '#fff' : 'var(--dim)',
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontStyle: 'italic',
-    fontSize: 18,
-    fontWeight: 600,
+    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontSize: 19,
+    fontWeight: 400,
     letterSpacing: '-0.01em',
     cursor: active ? 'pointer' : 'not-allowed',
     transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
-    boxShadow: active ? '0 4px 28px rgba(212,112,42,0.32)' : 'none',
+    boxShadow: active ? '0 3px 20px rgba(15,82,160,0.28)' : 'none',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
   }),
   error: {
     marginTop: 12,
-    fontSize: 11,
+    fontSize: 10,
     color: 'var(--red)',
-    fontFamily: 'Overpass Mono, monospace',
+    fontFamily: 'Martian Mono, monospace',
     textAlign: 'center',
+    letterSpacing: '0.04em',
   },
 }

@@ -1,36 +1,44 @@
 /* ── CSS Variables ───────────────────────────────────────────── */
 :root {
-  --bg:            #0e0b09;
-  --surface:       #181410;
-  --surface-2:     #221c15;
-  --surface-3:     #2c2419;
-  --border:        #312718;
-  --border-subtle: #261f18;
+  --bg:            #F8F6F1;
+  --surface:       #FFFFFF;
+  --surface-2:     #F0EDE6;
+  --surface-3:     #E8E4DC;
+  --border:        #D5D0C6;
+  --border-subtle: #E5E2DA;
 
-  --text:          #f2e8d5;
-  --muted:         #8c7b68;
-  --dim:           #54473c;
+  --text:          #141210;
+  --muted:         #6B6760;
+  --dim:           #A8A49B;
 
-  --accent:        #d4702a;
-  --accent-bright: #e07b35;
-  --accent-glow:   rgba(212, 112, 42, 0.14);
-  --accent-dim:    rgba(212, 112, 42, 0.10);
+  --accent:        #0F52A0;
+  --accent-bright: #1460B8;
+  --accent-glow:   rgba(15, 82, 160, 0.12);
+  --accent-dim:    rgba(15, 82, 160, 0.08);
 
-  --sage:          #4e8e6e;
-  --sage-dim:      rgba(78, 142, 110, 0.12);
+  --sage:          #376B52;
+  --sage-dim:      rgba(55, 107, 82, 0.10);
 
-  --red:           #c44040;
-  --red-glow:      rgba(196, 64, 64, 0.22);
+  --red:           #B33020;
+  --red-glow:      rgba(179, 48, 32, 0.16);
 
-  --radius:        10px;
-  --radius-lg:     16px;
-  --radius-xl:     22px;
+  --radius:        8px;
+  --radius-lg:     12px;
+  --radius-xl:     20px;
 }
 
 /* ── Keyframes ───────────────────────────────────────────────── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0);    }
+@keyframes ascend {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
 }
 
 @keyframes fadeIn {
@@ -39,23 +47,23 @@
 }
 
 @keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-14px); }
-  to   { opacity: 1; transform: translateX(0);     }
+  from { opacity: 0; transform: translateX(-12px); filter: blur(2px); }
+  to   { opacity: 1; transform: translateX(0);     filter: blur(0);   }
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(14px); }
-  to   { opacity: 1; transform: translateX(0);    }
+  from { opacity: 0; transform: translateX(12px);  filter: blur(2px); }
+  to   { opacity: 1; transform: translateX(0);     filter: blur(0);   }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.92); }
-  to   { opacity: 1; transform: scale(1);    }
+  from { opacity: 0; transform: scale(0.94); filter: blur(4px); }
+  to   { opacity: 1; transform: scale(1);    filter: blur(0);   }
 }
 
 @keyframes pulseRing {
-  0%   { transform: scale(1);   opacity: 0.55; }
-  100% { transform: scale(1.85); opacity: 0;   }
+  0%   { transform: scale(1);    opacity: 0.5; }
+  100% { transform: scale(1.9);  opacity: 0;   }
 }
 
 @keyframes blink {
@@ -67,29 +75,33 @@
   to { transform: rotate(360deg); }
 }
 
+@keyframes scanLine {
+  from { transform: scaleX(0); transform-origin: left; }
+  to   { transform: scaleX(1); transform-origin: left; }
+}
+
 /* ── Staggered reveal classes ────────────────────────────────── */
-.reveal-0 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.04s; }
-.reveal-1 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.14s; }
-.reveal-2 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.24s; }
-.reveal-3 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.34s; }
-.reveal-4 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.44s; }
-.reveal-5 { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.54s; }
+.reveal-0 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.04s; }
+.reveal-1 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.12s; }
+.reveal-2 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.21s; }
+.reveal-3 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.30s; }
+.reveal-4 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.39s; }
+.reveal-5 { animation: ascend 0.55s cubic-bezier(0.34,1.38,0.64,1) both; animation-delay: 0.48s; }
 
 /* ── Chat bubble entrance ────────────────────────────────────── */
-.msg-tutor { animation: slideInLeft  0.32s cubic-bezier(0.22,1,0.36,1) both; }
-.msg-user  { animation: slideInRight 0.32s cubic-bezier(0.22,1,0.36,1) both; }
+.msg-tutor { animation: slideInLeft  0.30s cubic-bezier(0.34,1.38,0.64,1) both; }
+.msg-user  { animation: slideInRight 0.30s cubic-bezier(0.34,1.38,0.64,1) both; }
 
 /* ── Modal entrance ──────────────────────────────────────────── */
-.modal-enter { animation: scaleIn 0.28s cubic-bezier(0.22,1,0.36,1) both; }
+.modal-enter { animation: scaleIn 0.28s cubic-bezier(0.34,1.38,0.64,1) both; }
 
-/* ── Patterned background ────────────────────────────────────── */
+/* ── Dot-grid background ─────────────────────────────────────── */
 .grid-bg {
   background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(212,112,42,0.07) 0%, transparent 65%),
-    linear-gradient(var(--border-subtle) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
-  background-size: auto, 40px 40px, 40px 40px;
+    radial-gradient(ellipse 80% 38% at 50% 0%, rgba(15,82,160,0.07) 0%, transparent 65%),
+    radial-gradient(circle, #C8C4BB 0.8px, transparent 0.8px);
+  background-size: auto, 24px 24px;
 }
 
 /* ── Surface card ────────────────────────────────────────────── */
@@ -97,15 +109,18 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 18px rgba(0,0,0,0.05);
 }
 
 /* ── Label caps ──────────────────────────────────────────────── */
 .label-caps {
-  font-size: 10px;
+  font-family: 'Martian Mono', monospace;
+  font-size: 9px;
   font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--accent);
+  opacity: 0.75;
 }
 
 /* ── Spinner ─────────────────────────────────────────────────── */
@@ -122,17 +137,21 @@
 /* ── Input / Select reset ────────────────────────────────────── */
 .field {
   width: 100%;
-  padding: 11px 14px;
-  background: var(--surface-2);
+  padding: 10px 13px;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
-  font-family: 'Overpass Mono', monospace;
-  font-size: 13px;
+  font-family: 'Martian Mono', monospace;
+  font-size: 12px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.18s, box-shadow 0.18s;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04) inset;
 }
-.field:focus { border-color: var(--accent); }
+.field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim), 0 1px 2px rgba(0,0,0,0.04) inset;
+}
 .field::placeholder { color: var(--dim); }

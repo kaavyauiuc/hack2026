@@ -25,13 +25,12 @@ export default function Session() {
   useEffect(() => {
     async function init() {
       try {
-        // Sync active_language from profile before starting
         try {
           const profile = await getUserProfile(userId)
           const lang = profile.active_language ?? targetLang
           setTargetLang(lang)
           localStorage.setItem('target_language', lang)
-        } catch (_) { /* keep existing localStorage value */ }
+        } catch (_) {}
 
         const data = await startSession(userId)
         setSessionId(data.session_id)
@@ -39,7 +38,7 @@ export default function Session() {
         const msgId = Date.now()
         setMessages([{ id: msgId, speaker: 'tutor', text: data.tutor_message, translation: data.tutor_translation }])
         fetchTTS(msgId, data.tutor_message)
-        setStatus('Tap the mic to speak')
+        setStatus('tap mic to speak')
         setIsBusy(false)
       } catch {
         setStatus('Failed to start session. Check backend connection.')
@@ -66,18 +65,18 @@ export default function Session() {
   const handleAudioBlob = useCallback(async (blob) => {
     if (!sessionId) return
     setIsBusy(true)
-    setStatus('Transcribing…')
+    setStatus('transcribing…')
 
     try {
       const transcript = await transcribeAudio(blob, targetLang)
       if (!transcript.trim()) {
-        setStatus('Could not hear you. Try again.')
+        setStatus('could not hear you. try again.')
         setIsBusy(false)
         return
       }
 
       setMessages(prev => [...prev, { id: Date.now() + Math.random(), speaker: 'user', text: transcript }])
-      setStatus('Tutor is thinking…')
+      setStatus('tutor is thinking…')
 
       const reader = await sendMessage(sessionId, userId, transcript)
       const decoder = new TextDecoder()
@@ -98,17 +97,17 @@ export default function Session() {
             const translation = JSON.parse(chunk.slice('[TRANSLATION]:'.length))
             setMessages(prev => prev.map(m => m.id === tutorMsgId ? { ...m, translation } : m))
             setIsBusy(false)
-            setStatus('Tap the mic to speak')
+            setStatus('tap mic to speak')
             continue
           }
-          if (!streamingStarted) { streamingStarted = true; setStatus('Responding…') }
+          if (!streamingStarted) { streamingStarted = true; setStatus('responding…') }
           tutorText += JSON.parse(chunk)
           setMessages(prev => prev.map(m => m.id === tutorMsgId ? { ...m, text: tutorText } : m))
         }
       }
     } catch (e) {
       console.error(e)
-      setStatus('Something went wrong. Try again.')
+      setStatus('something went wrong. try again.')
     } finally {
       setIsBusy(false)
     }
@@ -119,13 +118,13 @@ export default function Session() {
   function handleStopRecording() {
     stopRecording()
     setIsBusy(true)
-    setStatus('Processing…')
+    setStatus('processing…')
   }
 
   async function handleEndSession() {
     if (!sessionId) return
     setIsBusy(true)
-    setStatus('Evaluating session…')
+    setStatus('evaluating session…')
     try {
       const result = await endSession(sessionId, userId)
       setEvaluation(result)
@@ -136,16 +135,18 @@ export default function Session() {
   }
 
   return (
-    <div className="grid-bg" style={s.page}>
+    <div style={s.page}>
 
       {/* Header */}
       <header style={s.header}>
         <div style={s.headerLeft}>
-          <span style={s.logo}>LinguaAI</span>
+          <span style={s.logo}>
+            <em style={s.logoL}>Lingua</em><span style={s.logoR}>AI</span>
+          </span>
           {lessonTitle && <span style={s.lessonBadge}>{lessonTitle}</span>}
         </div>
         <button style={s.endBtn} onClick={handleEndSession} disabled={isBusy || !sessionId}>
-          End session
+          end session
         </button>
       </header>
 
@@ -175,7 +176,7 @@ export default function Session() {
           disabled={isBusy}
         />
         <div style={s.statusRow}>
-          {isBusy && !isRecording && <span className="spinner" style={{ width: 12, height: 12, marginRight: 8 }} />}
+          {isBusy && !isRecording && <span className="spinner" style={{ width: 11, height: 11, marginRight: 8 }} />}
           <span style={s.statusText}>{status}</span>
         </div>
       </div>
@@ -184,15 +185,15 @@ export default function Session() {
       {evaluation && (
         <div style={s.overlay}>
           <div className="card modal-enter" style={s.modal}>
-            <div style={s.modalEyebrow}>Session complete</div>
+            <div style={s.modalEyebrow}>session complete</div>
             <div style={s.modalCefr}>{evaluation.cefr_estimate}</div>
             <div style={s.modalConf}>
-              Confidence: {Math.round((evaluation.confidence_score || 0) * 100)}%
+              confidence: {Math.round((evaluation.confidence_score || 0) * 100)}%
             </div>
 
             {evaluation.achieved_objectives?.length > 0 && (
               <div style={s.modalSection}>
-                <div className="label-caps" style={{ marginBottom: 8 }}>Achieved</div>
+                <div className="label-caps" style={{ marginBottom: 8 }}>achieved</div>
                 <div style={s.tagRow}>
                   {evaluation.achieved_objectives.map((o, i) => (
                     <span key={i} style={s.tagGreen}>{o}</span>
@@ -203,10 +204,10 @@ export default function Session() {
 
             {evaluation.weaknesses?.length > 0 && (
               <div style={s.modalSection}>
-                <div className="label-caps" style={{ marginBottom: 8 }}>To improve</div>
+                <div className="label-caps" style={{ marginBottom: 8 }}>to improve</div>
                 <div style={s.tagRow}>
                   {evaluation.weaknesses.map((w, i) => (
-                    <span key={i} style={s.tag}>{w}</span>
+                    <span key={i} style={s.tagBlue}>{w}</span>
                   ))}
                 </div>
               </div>
@@ -214,17 +215,17 @@ export default function Session() {
 
             {evaluation.next_recommendation && (
               <div style={s.modalSection}>
-                <div className="label-caps" style={{ marginBottom: 8 }}>Next session</div>
+                <div className="label-caps" style={{ marginBottom: 8 }}>next session</div>
                 <p style={s.recommendation}>{evaluation.next_recommendation}</p>
               </div>
             )}
 
             <div style={s.modalBtns}>
               <button style={s.btnPrimary} onClick={() => { setEvaluation(null); window.location.reload() }}>
-                New session
+                <em style={{ fontStyle: 'italic' }}>new session</em>
               </button>
               <button style={s.btnSecondary} onClick={() => navigate('/dashboard')}>
-                Dashboard
+                dashboard
               </button>
             </div>
           </div>
@@ -239,11 +240,14 @@ const s = {
     minHeight: '100vh',
     display: 'flex',
     flexDirection: 'column',
+    background: 'var(--bg)',
+    backgroundImage: 'radial-gradient(circle, #C8C4BB 0.8px, transparent 0.8px)',
+    backgroundSize: '24px 24px',
   },
   header: {
     padding: '14px 24px',
     borderBottom: '1px solid var(--border)',
-    background: 'rgba(14,11,9,0.85)',
+    background: 'rgba(248,246,241,0.88)',
     backdropFilter: 'blur(12px)',
     display: 'flex',
     alignItems: 'center',
@@ -253,35 +257,43 @@ const s = {
     zIndex: 10,
   },
   headerLeft: { display: 'flex', alignItems: 'center', gap: 14 },
-  logo: {
-    fontFamily: 'Fraunces, Georgia, serif',
+  logo: { display: 'flex', alignItems: 'baseline' },
+  logoL: {
+    fontFamily: 'Instrument Serif, Georgia, serif',
     fontStyle: 'italic',
-    fontSize: 16,
+    fontSize: 17,
+    fontWeight: 400,
+    color: 'var(--accent)',
+  },
+  logoR: {
+    fontFamily: 'Martian Mono, monospace',
+    fontSize: 10,
     fontWeight: 500,
-    color: 'var(--text)',
-    letterSpacing: '-0.01em',
+    color: 'var(--muted)',
   },
   lessonBadge: {
-    fontSize: 11,
+    fontSize: 10,
     color: 'var(--muted)',
-    fontFamily: 'Overpass Mono, monospace',
+    fontFamily: 'Martian Mono, monospace',
     background: 'var(--surface-2)',
     border: '1px solid var(--border)',
-    borderRadius: 6,
+    borderRadius: 5,
     padding: '3px 9px',
     maxWidth: 280,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+    letterSpacing: '0.04em',
   },
   endBtn: {
-    padding: '7px 14px',
+    padding: '6px 14px',
     background: 'transparent',
     border: '1px solid var(--border)',
-    borderRadius: 8,
+    borderRadius: 6,
     color: 'var(--muted)',
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 12,
+    fontFamily: 'Martian Mono, monospace',
+    fontSize: 10,
+    letterSpacing: '0.06em',
     cursor: 'pointer',
     transition: 'border-color 0.15s, color 0.15s',
   },
@@ -290,107 +302,82 @@ const s = {
   bottom: {
     padding: '20px 24px 28px',
     borderTop: '1px solid var(--border)',
-    background: 'rgba(14,11,9,0.85)',
+    background: 'rgba(248,246,241,0.88)',
     backdropFilter: 'blur(12px)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 14,
+    gap: 12,
   },
   statusRow: { display: 'flex', alignItems: 'center' },
   statusText: {
-    fontSize: 12,
+    fontSize: 10,
     color: 'var(--muted)',
-    fontFamily: 'Overpass Mono, monospace',
+    fontFamily: 'Martian Mono, monospace',
+    letterSpacing: '0.08em',
   },
   overlay: {
-    position: 'fixed',
-    inset: 0,
-    background: 'rgba(0,0,0,0.72)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 50,
-    padding: 20,
+    position: 'fixed', inset: 0,
+    background: 'rgba(20,18,16,0.55)',
+    backdropFilter: 'blur(4px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    zIndex: 50, padding: 20,
   },
   modal: {
     padding: '32px 28px 28px',
-    maxWidth: 460,
-    width: '100%',
+    maxWidth: 460, width: '100%',
   },
   modalEyebrow: {
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 10,
-    letterSpacing: '0.16em',
-    textTransform: 'uppercase',
-    color: 'var(--muted)',
-    marginBottom: 10,
+    fontFamily: 'Martian Mono, monospace',
+    fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase',
+    color: 'var(--accent)', opacity: 0.7, marginBottom: 10,
   },
   modalCefr: {
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontSize: 64,
-    fontWeight: 700,
+    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontSize: 72, fontWeight: 400,
     letterSpacing: '-0.04em',
     color: 'var(--accent)',
-    lineHeight: 1,
-    marginBottom: 6,
+    lineHeight: 1, marginBottom: 4,
   },
   modalConf: {
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 11,
-    color: 'var(--muted)',
-    marginBottom: 20,
+    fontFamily: 'Martian Mono, monospace',
+    fontSize: 10, color: 'var(--muted)',
+    marginBottom: 22, letterSpacing: '0.06em',
   },
   modalSection: { marginBottom: 16 },
   tagRow: { display: 'flex', flexWrap: 'wrap', gap: 6 },
-  tag: {
-    padding: '4px 10px',
-    background: 'var(--surface-2)',
-    border: '1px solid var(--border)',
-    borderRadius: 6,
-    fontSize: 11,
-    color: 'var(--muted)',
-    fontFamily: 'Overpass Mono, monospace',
-  },
   tagGreen: {
-    padding: '4px 10px',
-    background: 'var(--sage-dim)',
-    border: '1px solid rgba(78,142,110,0.3)',
-    borderRadius: 6,
-    fontSize: 11,
-    color: 'var(--sage)',
-    fontFamily: 'Overpass Mono, monospace',
+    padding: '4px 10px', background: 'var(--sage-dim)',
+    border: '1px solid rgba(55,107,82,0.2)', borderRadius: 20,
+    fontSize: 10, color: 'var(--sage)', fontFamily: 'Martian Mono, monospace',
+    letterSpacing: '0.04em',
+  },
+  tagBlue: {
+    padding: '4px 10px', background: 'var(--accent-dim)',
+    border: '1px solid rgba(15,82,160,0.18)', borderRadius: 20,
+    fontSize: 10, color: 'var(--accent)', fontFamily: 'Martian Mono, monospace',
+    letterSpacing: '0.04em',
   },
   recommendation: {
-    fontSize: 13,
-    color: 'var(--text)',
-    lineHeight: 1.65,
-    fontFamily: 'Overpass Mono, monospace',
+    fontSize: 13, color: 'var(--text)',
+    lineHeight: 1.7,
+    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontStyle: 'italic',
   },
   modalBtns: { display: 'flex', gap: 10, marginTop: 24 },
   btnPrimary: {
-    flex: 1,
-    padding: '12px',
-    background: 'var(--accent)',
-    border: 'none',
+    flex: 1, padding: '12px',
+    background: 'var(--accent)', border: 'none',
     borderRadius: 'var(--radius)',
-    color: '#fff',
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontStyle: 'italic',
-    fontSize: 16,
-    fontWeight: 600,
-    cursor: 'pointer',
-    boxShadow: '0 4px 20px rgba(212,112,42,0.28)',
+    color: '#fff', fontFamily: 'Instrument Serif, Georgia, serif',
+    fontSize: 18, fontWeight: 400, cursor: 'pointer',
+    boxShadow: '0 3px 18px rgba(15,82,160,0.28)',
   },
   btnSecondary: {
-    flex: 1,
-    padding: '12px',
-    background: 'transparent',
-    border: '1px solid var(--border)',
-    borderRadius: 'var(--radius)',
-    color: 'var(--muted)',
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 12,
-    cursor: 'pointer',
+    flex: 1, padding: '12px',
+    background: 'transparent', border: '1px solid var(--border)',
+    borderRadius: 'var(--radius)', color: 'var(--muted)',
+    fontFamily: 'Martian Mono, monospace', fontSize: 10,
+    letterSpacing: '0.06em', cursor: 'pointer',
   },
 }

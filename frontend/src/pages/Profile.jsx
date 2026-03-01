@@ -29,7 +29,6 @@ const CEFR_LABELS = {
 }
 
 const CEFR_ORDER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
-
 const ALL_LANGUAGES = ['spa', 'fra', 'deu', 'cmn', 'jpn', 'por', 'hin']
 const NATIVE_LANGUAGES = ['eng', 'spa', 'fra', 'deu', 'cmn', 'jpn', 'por', 'hin']
 
@@ -41,13 +40,11 @@ export default function Profile() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Edit mode state
   const [editMode, setEditMode] = useState(false)
   const [editName, setEditName] = useState('')
   const [editNative, setEditNative] = useState('')
   const [saving, setSaving] = useState(false)
 
-  // Add language state
   const [showAddLang, setShowAddLang] = useState(false)
   const [addLangCode, setAddLangCode] = useState('')
   const [addLangCefr, setAddLangCefr] = useState('A1')
@@ -68,7 +65,6 @@ export default function Profile() {
     finally { setLoading(false) }
   }
 
-  // ── Active language progress ─────────────────────────────────
   const activeLangProgress = profile
     ? (profile.languages || []).find(l => l.language === profile.active_language)
     : null
@@ -76,69 +72,49 @@ export default function Profile() {
   const activeCefrIndex = CEFR_ORDER.indexOf(activeLangProgress?.current_cefr_level ?? 'A1')
   const firstSession = activeLangProgress?.history?.length > 0 ? activeLangProgress.history[0] : null
 
-  // ── Switch active language ───────────────────────────────────
   async function handleSwitchLanguage(lang) {
     if (lang === profile.active_language) return
     try {
       const updated = await updateUserProfile(userId, { active_language: lang })
       setProfile(updated)
       localStorage.setItem('target_language', lang)
-    } catch (e) {
-      setError('Failed to switch language.')
-    }
+    } catch { setError('Failed to switch language.') }
   }
 
-  // ── Remove language ──────────────────────────────────────────
   async function handleRemoveLanguage(lang) {
     if ((profile.languages || []).length <= 1) return
     try {
       const updated = await removeUserLanguage(userId, lang)
       setProfile(updated)
-      if (lang === localStorage.getItem('target_language')) {
+      if (lang === localStorage.getItem('target_language'))
         localStorage.setItem('target_language', updated.active_language)
-      }
     } catch (e) {
       setError(e?.response?.data?.detail || 'Failed to remove language.')
     }
   }
 
-  // ── Save profile edits ───────────────────────────────────────
   async function handleSaveEdit() {
-    setSaving(true)
-    setError('')
+    setSaving(true); setError('')
     try {
       const updated = await updateUserProfile(userId, { name: editName, native_language: editNative })
-      setProfile(updated)
-      setEditMode(false)
-    } catch (e) {
-      setError('Failed to save changes.')
-    } finally {
-      setSaving(false)
-    }
+      setProfile(updated); setEditMode(false)
+    } catch { setError('Failed to save changes.') }
+    finally { setSaving(false) }
   }
 
   function enterEditMode() {
-    setEditName(profile.name)
-    setEditNative(profile.native_language)
-    setEditMode(true)
+    setEditName(profile.name); setEditNative(profile.native_language); setEditMode(true)
   }
 
-  // ── Add language ─────────────────────────────────────────────
   async function handleAddLanguage() {
     if (!addLangCode) { setAddLangError('Select a language.'); return }
-    setAddingLang(true)
-    setAddLangError('')
+    setAddingLang(true); setAddLangError('')
     try {
       const updated = await addUserLanguage(userId, addLangCode, addLangCefr)
-      setProfile(updated)
-      setShowAddLang(false)
-      setAddLangCode('')
-      setAddLangCefr('A1')
+      setProfile(updated); setShowAddLang(false); setAddLangCode(''); setAddLangCefr('A1')
     } catch (e) {
       setAddLangError(e?.response?.data?.detail || 'Failed to add language.')
-    } finally {
-      setAddingLang(false)
-    }
+    } finally { setAddingLang(false) }
   }
 
   if (loading) {
@@ -169,13 +145,13 @@ export default function Profile() {
             {editMode ? (
               <div style={s.editForm}>
                 <input
-                  style={s.input}
+                  style={s.editInput}
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
                   placeholder="Name"
                 />
                 <select
-                  style={s.select}
+                  style={s.editSelect}
                   value={editNative}
                   onChange={e => setEditNative(e.target.value)}
                 >
@@ -185,21 +161,21 @@ export default function Profile() {
                 </select>
                 <div style={s.editBtns}>
                   <button style={s.btnSave} onClick={handleSaveEdit} disabled={saving}>
-                    {saving ? 'Saving…' : 'Save'}
+                    {saving ? 'saving…' : 'save'}
                   </button>
-                  <button style={s.btnCancel} onClick={() => setEditMode(false)}>Cancel</button>
+                  <button style={s.btnCancel} onClick={() => setEditMode(false)}>cancel</button>
                 </div>
               </div>
             ) : (
               <>
                 <div style={s.nameRow}>
                   <h1 style={s.name}>{profile.name}</h1>
-                  <button style={s.editIcon} onClick={enterEditMode} title="Edit profile">✎</button>
+                  <button style={s.editIcon} onClick={enterEditMode} title="Edit">✎</button>
                 </div>
                 <div style={s.since}>
-                  Native: {LANG_NAMES[profile.native_language] ?? profile.native_language}
+                  native: {LANG_NAMES[profile.native_language] ?? profile.native_language}
                   {firstSession
-                    ? ` · Learning since ${new Date(firstSession.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
+                    ? ` · since ${new Date(firstSession.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
                     : ''}
                 </div>
               </>
@@ -211,9 +187,9 @@ export default function Profile() {
 
         <div className="reveal-1" style={s.rule} />
 
-        {/* Languages section */}
+        {/* Languages */}
         <div className="reveal-2">
-          <div className="label-caps" style={{ marginBottom: 14 }}>Languages</div>
+          <div className="label-caps" style={{ marginBottom: 14 }}>languages</div>
           <div style={s.langGrid}>
             {(profile.languages || []).map(lp => {
               const isActive = lp.language === profile.active_language
@@ -224,28 +200,28 @@ export default function Profile() {
                   style={s.langCard(isActive)}
                   onClick={() => handleSwitchLanguage(lp.language)}
                 >
-                  {isActive && <span style={s.activeBadge}>Active</span>}
+                  {isActive && <div style={s.activeLine} />}
                   {(profile.languages || []).length > 1 && (
                     <button
                       style={s.removeBtn}
                       onClick={e => { e.stopPropagation(); handleRemoveLanguage(lp.language) }}
-                      title="Remove language"
-                    >✕</button>
+                    >×</button>
                   )}
                   <div style={s.langCardFlag}>{LANG_FLAGS[lp.language] ?? '🌐'}</div>
                   <div style={s.langCardName}>{LANG_NAMES[lp.language] ?? lp.language}</div>
                   <div style={s.langCardNative}>{LANG_NATIVE[lp.language] ?? ''}</div>
-                  <div style={s.langCardLevel}>{lp.current_cefr_level}</div>
+                  <div style={s.langCardLevel(isActive)}>{lp.current_cefr_level}</div>
                   <div style={s.langCardSessions}>{sessCount} session{sessCount !== 1 ? 's' : ''}</div>
                 </div>
               )
             })}
 
-            {/* Add language button */}
             {availableToAdd.length > 0 && !showAddLang && (
               <button style={s.addLangBtn} onClick={() => setShowAddLang(true)}>
-                <span style={{ fontSize: 22, lineHeight: 1 }}>＋</span>
-                <span style={{ marginTop: 4, fontFamily: 'Overpass Mono, monospace', fontSize: 10 }}>Add language</span>
+                <span style={{ fontSize: 24, lineHeight: 1, opacity: 0.4 }}>+</span>
+                <span style={{ fontFamily: 'Martian Mono, monospace', fontSize: 9, letterSpacing: '0.08em', opacity: 0.5 }}>
+                  add language
+                </span>
               </button>
             )}
           </div>
@@ -253,8 +229,8 @@ export default function Profile() {
 
         {/* Inline add-language form */}
         {showAddLang && (
-          <div className="reveal-2 card" style={{ ...s.card, marginTop: 14 }}>
-            <div className="label-caps" style={{ marginBottom: 14 }}>Add a new language</div>
+          <div className="reveal-2 card" style={{ ...s.card, marginTop: 12 }}>
+            <div className="label-caps" style={{ marginBottom: 14 }}>enrol a new language</div>
             <div style={s.addLangGrid}>
               {availableToAdd.map(l => (
                 <button
@@ -262,13 +238,15 @@ export default function Profile() {
                   style={s.langPickBtn(addLangCode === l)}
                   onClick={() => setAddLangCode(l)}
                 >
-                  <span style={{ fontSize: 20 }}>{LANG_FLAGS[l]}</span>
-                  <span style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 13 }}>{LANG_NAMES[l]}</span>
+                  <span style={{ fontSize: 18 }}>{LANG_FLAGS[l]}</span>
+                  <span style={{ fontFamily: 'Instrument Serif, Georgia, serif', fontStyle: 'italic', fontSize: 13 }}>
+                    {LANG_NAMES[l]}
+                  </span>
                 </button>
               ))}
             </div>
             <div style={{ marginTop: 16, marginBottom: 10 }}>
-              <div className="label-caps" style={{ marginBottom: 8 }}>Starting level</div>
+              <div className="label-caps" style={{ marginBottom: 8 }}>starting level</div>
               <div style={s.cefrSegment}>
                 {CEFR_ORDER.map(c => (
                   <button
@@ -282,29 +260,29 @@ export default function Profile() {
             {addLangError && <div style={s.addLangErr}>{addLangError}</div>}
             <div style={s.editBtns}>
               <button style={s.btnSave} onClick={handleAddLanguage} disabled={addingLang || !addLangCode}>
-                {addingLang ? 'Adding…' : 'Add'}
+                {addingLang ? 'adding…' : 'add'}
               </button>
               <button style={s.btnCancel} onClick={() => { setShowAddLang(false); setAddLangCode(''); setAddLangError('') }}>
-                Cancel
+                cancel
               </button>
             </div>
           </div>
         )}
 
-        {/* Stats row */}
+        {/* Stats */}
         <div className="reveal-3" style={s.statsRow}>
           <div className="card" style={s.statCard}>
-            <div className="label-caps" style={{ marginBottom: 10 }}>Current level</div>
+            <div className="label-caps" style={{ marginBottom: 10 }}>level</div>
             <div style={s.statBig}>{activeLangProgress?.current_cefr_level ?? 'A1'}</div>
             <div style={s.statSub}>{CEFR_LABELS[activeLangProgress?.current_cefr_level] ?? ''}</div>
           </div>
           <div className="card" style={s.statCard}>
-            <div className="label-caps" style={{ marginBottom: 10 }}>Sessions</div>
+            <div className="label-caps" style={{ marginBottom: 10 }}>sessions</div>
             <div style={s.statBig}>{activeLangProgress?.history?.length ?? 0}</div>
-            <div style={s.statSub}>in {LANG_NAMES[profile.active_language] ?? profile.active_language}</div>
+            <div style={s.statSub}>{LANG_NAMES[profile.active_language] ?? profile.active_language}</div>
           </div>
           <div className="card" style={s.statCard}>
-            <div className="label-caps" style={{ marginBottom: 10 }}>Last session</div>
+            <div className="label-caps" style={{ marginBottom: 10 }}>last session</div>
             {(() => {
               const hist = activeLangProgress?.history ?? []
               const last = hist.length > 0 ? hist[hist.length - 1] : null
@@ -313,26 +291,24 @@ export default function Profile() {
                   <div style={{ ...s.statBig, fontSize: 18 }}>
                     {last ? new Date(last.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
                   </div>
-                  <div style={s.statSub}>{last ? last.lesson_title || 'Untitled' : 'none yet'}</div>
+                  <div style={s.statSub}>{last ? last.lesson_title || 'untitled' : 'none yet'}</div>
                 </>
               )
             })()}
           </div>
         </div>
 
-        {/* CEFR progress bar */}
+        {/* CEFR track */}
         <div className="reveal-3 card" style={s.card}>
           <div className="label-caps" style={{ marginBottom: 18 }}>
-            CEFR progression — {LANG_NAMES[profile.active_language] ?? profile.active_language}
+            cefr progression — {LANG_NAMES[profile.active_language] ?? profile.active_language}
           </div>
           <div style={s.cefrTrack}>
             {CEFR_ORDER.map((c, i) => (
               <div key={c} style={s.cefrStep}>
                 <div style={s.cefrDot(i <= activeCefrIndex, i === activeCefrIndex)} />
-                {i < CEFR_ORDER.length - 1 && (
-                  <div style={s.cefrLine(i < activeCefrIndex)} />
-                )}
-                <div style={s.cefrLabel(i === activeCefrIndex)}>{c}</div>
+                {i < CEFR_ORDER.length - 1 && <div style={s.cefrLine(i < activeCefrIndex)} />}
+                <div style={s.cefrLabelText(i === activeCefrIndex)}>{c}</div>
               </div>
             ))}
           </div>
@@ -343,7 +319,7 @@ export default function Profile() {
           <div className="reveal-4" style={s.twoCol}>
             {activeLangProgress.strengths?.length > 0 && (
               <div className="card" style={s.card}>
-                <div className="label-caps" style={{ marginBottom: 14 }}>Strengths</div>
+                <div className="label-caps" style={{ marginBottom: 14 }}>strengths</div>
                 <div style={s.tagCloud}>
                   {activeLangProgress.strengths.map((t, i) => (
                     <span key={i} style={s.tagGreen}>{t}</span>
@@ -353,10 +329,10 @@ export default function Profile() {
             )}
             {activeLangProgress.weaknesses?.length > 0 && (
               <div className="card" style={s.card}>
-                <div className="label-caps" style={{ marginBottom: 14 }}>To improve</div>
+                <div className="label-caps" style={{ marginBottom: 14 }}>to improve</div>
                 <div style={s.tagCloud}>
                   {activeLangProgress.weaknesses.map((t, i) => (
-                    <span key={i} style={s.tagOrange}>{t}</span>
+                    <span key={i} style={s.tagBlue}>{t}</span>
                   ))}
                 </div>
               </div>
@@ -366,11 +342,8 @@ export default function Profile() {
 
         {/* Reset */}
         <div className="reveal-5" style={s.resetRow}>
-          <button style={s.resetBtn} onClick={() => {
-            localStorage.clear()
-            navigate('/onboarding')
-          }}>
-            Start fresh with a new profile
+          <button style={s.resetBtn} onClick={() => { localStorage.clear(); navigate('/onboarding') }}>
+            start fresh with a new profile
           </button>
         </div>
 
@@ -387,342 +360,231 @@ const s = {
     display: 'flex',
     alignItems: 'flex-start',
     gap: 20,
-    padding: '20px 0 28px',
+    padding: '24px 0 28px',
   },
   avatar: {
-    width: 64,
-    height: 64,
+    width: 60,
+    height: 60,
     borderRadius: '50%',
     background: 'var(--accent-dim)',
-    border: '2px solid var(--accent)',
+    border: '1.5px solid rgba(15,82,160,0.3)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
   },
   avatarInitial: {
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontSize: 28,
-    fontWeight: 600,
+    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontSize: 26,
+    fontWeight: 400,
+    fontStyle: 'italic',
     color: 'var(--accent)',
   },
   heroText: { flex: 1 },
-  nameRow: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 },
+  nameRow: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5 },
   name: {
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontSize: 'clamp(26px, 5vw, 38px)',
-    fontWeight: 600,
-    letterSpacing: '-0.025em',
+    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontSize: 'clamp(26px, 5vw, 40px)',
+    fontWeight: 400,
+    letterSpacing: '-0.02em',
     color: 'var(--text)',
     lineHeight: 1.1,
   },
   editIcon: {
-    background: 'none',
-    border: 'none',
-    color: 'var(--dim)',
-    cursor: 'pointer',
-    fontSize: 16,
-    padding: '2px 4px',
-    transition: 'color 0.15s',
+    background: 'none', border: 'none',
+    color: 'var(--dim)', cursor: 'pointer', fontSize: 15, padding: '2px 4px',
   },
   since: {
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 11,
-    color: 'var(--muted)',
+    fontFamily: 'Martian Mono, monospace',
+    fontSize: 10, color: 'var(--muted)',
+    letterSpacing: '0.04em', fontWeight: 300,
   },
 
   editForm: { display: 'flex', flexDirection: 'column', gap: 10 },
-  input: {
-    background: 'var(--surface-2)',
-    border: '1px solid var(--border)',
-    borderRadius: 8,
-    color: 'var(--text)',
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontSize: 18,
-    padding: '8px 12px',
-    outline: 'none',
-    width: '100%',
+  editInput: {
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 8, color: 'var(--text)',
+    fontFamily: 'Instrument Serif, Georgia, serif', fontStyle: 'italic', fontSize: 20,
+    padding: '9px 13px', outline: 'none', width: '100%',
   },
-  select: {
-    background: 'var(--surface-2)',
-    border: '1px solid var(--border)',
-    borderRadius: 8,
-    color: 'var(--text)',
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 12,
-    padding: '8px 12px',
-    outline: 'none',
-    width: '100%',
+  editSelect: {
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 8, color: 'var(--text)',
+    fontFamily: 'Martian Mono, monospace', fontSize: 11,
+    padding: '9px 13px', outline: 'none', width: '100%', appearance: 'none',
   },
   editBtns: { display: 'flex', gap: 8, marginTop: 4 },
   btnSave: {
-    padding: '8px 20px',
-    background: 'var(--accent)',
-    border: 'none',
-    borderRadius: 8,
-    color: '#fff',
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontStyle: 'italic',
-    fontSize: 14,
-    fontWeight: 600,
-    cursor: 'pointer',
+    padding: '8px 18px', background: 'var(--accent)', border: 'none', borderRadius: 6,
+    color: '#fff', fontFamily: 'Martian Mono, monospace', fontSize: 10,
+    letterSpacing: '0.06em', cursor: 'pointer',
   },
   btnCancel: {
-    padding: '8px 16px',
-    background: 'none',
-    border: '1px solid var(--border)',
-    borderRadius: 8,
-    color: 'var(--muted)',
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 12,
-    cursor: 'pointer',
+    padding: '8px 14px', background: 'none', border: '1px solid var(--border)',
+    borderRadius: 6, color: 'var(--muted)', fontFamily: 'Martian Mono, monospace',
+    fontSize: 10, letterSpacing: '0.06em', cursor: 'pointer',
   },
 
   errorBanner: {
-    padding: '10px 14px',
-    background: 'rgba(212,112,42,0.12)',
-    border: '1px solid rgba(212,112,42,0.3)',
-    borderRadius: 8,
-    color: 'var(--accent-bright)',
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 12,
-    marginBottom: 14,
+    padding: '10px 14px', background: 'rgba(179,48,32,0.07)',
+    border: '1px solid rgba(179,48,32,0.2)', borderRadius: 8,
+    color: 'var(--red)', fontFamily: 'Martian Mono, monospace',
+    fontSize: 10, letterSpacing: '0.04em', marginBottom: 14,
   },
 
   rule: {
     height: 1,
-    background: 'linear-gradient(90deg, var(--border) 0%, transparent 80%)',
-    marginBottom: 24,
+    background: 'linear-gradient(90deg, var(--accent) 0%, transparent 70%)',
+    opacity: 0.2, marginBottom: 24,
   },
 
   langGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-    gap: 12,
-    marginBottom: 14,
+    gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+    gap: 10, marginBottom: 14,
   },
   langCard: isActive => ({
     position: 'relative',
-    padding: '16px 14px 14px',
-    background: 'var(--surface-2)',
-    border: `1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}`,
-    borderRadius: 'var(--radius)',
+    padding: '16px 12px 14px',
+    background: isActive ? 'rgba(15,82,160,0.06)' : 'var(--surface)',
+    border: `1px solid ${isActive ? 'rgba(15,82,160,0.35)' : 'var(--border)'}`,
+    borderRadius: 'var(--radius-lg)',
     cursor: 'pointer',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 4,
-    transition: 'border-color 0.15s, box-shadow 0.15s',
-    boxShadow: isActive ? '0 0 0 1px var(--accent)' : 'none',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+    transition: 'border-color 0.15s, background 0.15s',
+    boxShadow: isActive ? '0 2px 12px rgba(15,82,160,0.12)' : '0 1px 3px rgba(0,0,0,0.04)',
+    overflow: 'hidden',
   }),
-  activeBadge: {
-    position: 'absolute',
-    top: 7,
-    left: 8,
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 9,
-    color: 'var(--accent)',
-    letterSpacing: '0.08em',
-    textTransform: 'uppercase',
+  activeLine: {
+    position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+    background: 'var(--accent)', borderRadius: '0 0 2px 2px',
   },
   removeBtn: {
-    position: 'absolute',
-    top: 5,
-    right: 7,
-    background: 'none',
-    border: 'none',
-    color: 'var(--dim)',
-    cursor: 'pointer',
-    fontSize: 11,
-    padding: '2px 4px',
-    transition: 'color 0.15s',
+    position: 'absolute', top: 6, right: 8,
+    background: 'none', border: 'none', color: 'var(--dim)',
+    cursor: 'pointer', fontSize: 14, padding: '2px 3px', lineHeight: 1,
   },
-  langCardFlag: { fontSize: 30, lineHeight: 1, marginTop: 8 },
+  langCardFlag: { fontSize: 28, lineHeight: 1, marginTop: 6 },
   langCardName: {
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontSize: 15,
-    fontWeight: 600,
-    color: 'var(--text)',
+    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontStyle: 'italic', fontSize: 14, fontWeight: 400, color: 'var(--text)',
   },
   langCardNative: {
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontStyle: 'italic',
-    fontSize: 12,
-    color: 'var(--muted)',
+    fontFamily: 'Martian Mono, monospace', fontSize: 9,
+    color: 'var(--muted)', letterSpacing: '0.04em',
   },
-  langCardLevel: {
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontSize: 20,
-    fontWeight: 700,
-    color: 'var(--accent)',
+  langCardLevel: isActive => ({
+    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontSize: 22, fontWeight: 400,
+    color: isActive ? 'var(--accent)' : 'var(--muted)',
     marginTop: 4,
-  },
+  }),
   langCardSessions: {
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 9,
-    color: 'var(--dim)',
+    fontFamily: 'Martian Mono, monospace', fontSize: 8,
+    color: 'var(--dim)', letterSpacing: '0.06em',
   },
 
   addLangBtn: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    padding: '16px 14px',
-    background: 'none',
-    border: '1px dashed var(--border)',
-    borderRadius: 'var(--radius)',
-    color: 'var(--muted)',
-    cursor: 'pointer',
-    minHeight: 130,
-    transition: 'border-color 0.15s, color 0.15s',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+    gap: 6, padding: '16px 12px', background: 'none',
+    border: '1px dashed var(--border)', borderRadius: 'var(--radius-lg)',
+    color: 'var(--text)', cursor: 'pointer', minHeight: 120,
+    transition: 'border-color 0.15s',
   },
 
   addLangGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-    gap: 8,
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 6,
   },
   langPickBtn: isSelected => ({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 4,
-    padding: '10px 8px',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+    padding: '9px 6px', cursor: 'pointer',
     background: isSelected ? 'var(--accent-dim)' : 'var(--surface-2)',
     border: `1px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`,
-    borderRadius: 8,
-    cursor: 'pointer',
-    transition: 'all 0.15s',
+    borderRadius: 8, transition: 'all 0.12s',
   }),
 
-  cefrSegment: { display: 'flex', gap: 4 },
+  cefrSegment: { display: 'flex', gap: 4, flexWrap: 'wrap' },
   cefrSegBtn: isSelected => ({
     padding: '6px 12px',
-    background: isSelected ? 'var(--accent)' : 'var(--surface-2)',
+    background: isSelected ? 'var(--accent)' : 'var(--surface)',
     border: `1px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`,
-    borderRadius: 6,
-    color: isSelected ? '#fff' : 'var(--muted)',
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 11,
-    cursor: 'pointer',
-    transition: 'all 0.15s',
+    borderRadius: 6, color: isSelected ? '#fff' : 'var(--muted)',
+    fontFamily: 'Martian Mono, monospace', fontSize: 10,
+    cursor: 'pointer', transition: 'all 0.12s',
   }),
 
   addLangErr: {
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 11,
-    color: 'var(--accent-bright)',
-    marginBottom: 8,
+    fontFamily: 'Martian Mono, monospace', fontSize: 10,
+    color: 'var(--red)', marginBottom: 8, letterSpacing: '0.04em',
   },
 
   statsRow: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: 12,
-    marginBottom: 14,
-    marginTop: 14,
+    display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: 10, marginBottom: 12, marginTop: 12,
   },
-  statCard: { padding: '18px 20px 16px', textAlign: 'center' },
+  statCard: { padding: '18px 16px 16px', textAlign: 'center' },
   statBig: {
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontSize: 36,
-    fontWeight: 700,
-    letterSpacing: '-0.03em',
-    color: 'var(--accent)',
-    lineHeight: 1,
-    marginBottom: 4,
+    fontFamily: 'Instrument Serif, Georgia, serif',
+    fontSize: 38, fontWeight: 400,
+    color: 'var(--accent)', lineHeight: 1, marginBottom: 4,
   },
   statSub: {
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 10,
-    color: 'var(--dim)',
-    letterSpacing: '0.05em',
+    fontFamily: 'Martian Mono, monospace', fontSize: 9,
+    color: 'var(--dim)', letterSpacing: '0.08em',
   },
 
-  card: { padding: '20px 22px 18px', marginBottom: 14 },
+  card: { padding: '20px 22px 18px', marginBottom: 12 },
 
-  cefrTrack: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: 0,
-  },
+  cefrTrack: { display: 'flex', alignItems: 'flex-start', gap: 0 },
   cefrStep: {
-    display: 'flex',
-    alignItems: 'center',
-    flex: 1,
-    flexDirection: 'column',
-    position: 'relative',
+    display: 'flex', alignItems: 'center', flex: 1,
+    flexDirection: 'column', position: 'relative',
   },
   cefrDot: (filled, current) => ({
-    width: current ? 14 : 10,
-    height: current ? 14 : 10,
+    width: current ? 14 : 9, height: current ? 14 : 9,
     borderRadius: '50%',
-    background: filled ? 'var(--accent)' : 'var(--surface-3)',
-    border: `2px solid ${filled ? 'var(--accent)' : 'var(--border)'}`,
-    boxShadow: current ? '0 0 10px rgba(212,112,42,0.5)' : 'none',
-    flexShrink: 0,
-    zIndex: 1,
-    marginBottom: 8,
-    transition: 'all 0.2s',
+    background: filled ? 'var(--accent)' : 'var(--border)',
+    border: `2px solid ${filled ? 'var(--accent)' : 'var(--border-subtle)'}`,
+    boxShadow: current ? '0 0 0 4px var(--accent-dim)' : 'none',
+    flexShrink: 0, zIndex: 1, marginBottom: 8, transition: 'all 0.2s',
   }),
   cefrLine: filled => ({
-    position: 'absolute',
-    top: 6,
-    left: '50%',
-    width: '100%',
-    height: 2,
+    position: 'absolute', top: 5, left: '50%',
+    width: '100%', height: 1.5,
     background: filled ? 'var(--accent)' : 'var(--border)',
-    zIndex: 0,
+    zIndex: 0, opacity: filled ? 0.7 : 1,
   }),
-  cefrLabel: current => ({
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: current ? 12 : 10,
-    fontWeight: current ? 600 : 400,
+  cefrLabelText: current => ({
+    fontFamily: 'Martian Mono, monospace',
+    fontSize: current ? 11 : 9, fontWeight: current ? 500 : 300,
     color: current ? 'var(--accent)' : 'var(--dim)',
+    letterSpacing: '0.06em',
   }),
 
   twoCol: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gap: 12,
-    marginBottom: 14,
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    gap: 10, marginBottom: 12,
   },
   tagCloud: { display: 'flex', flexWrap: 'wrap', gap: 6 },
   tagGreen: {
-    padding: '4px 10px',
-    background: 'var(--sage-dim)',
-    border: '1px solid rgba(78,142,110,0.28)',
-    borderRadius: 6,
-    fontSize: 11,
-    color: 'var(--sage)',
-    fontFamily: 'Overpass Mono, monospace',
+    padding: '4px 10px', background: 'var(--sage-dim)',
+    border: '1px solid rgba(55,107,82,0.2)', borderRadius: 20,
+    fontSize: 10, color: 'var(--sage)', fontFamily: 'Martian Mono, monospace',
+    letterSpacing: '0.04em',
   },
-  tagOrange: {
-    padding: '4px 10px',
-    background: 'var(--accent-dim)',
-    border: '1px solid rgba(212,112,42,0.28)',
-    borderRadius: 6,
-    fontSize: 11,
-    color: 'var(--accent-bright)',
-    fontFamily: 'Overpass Mono, monospace',
+  tagBlue: {
+    padding: '4px 10px', background: 'var(--accent-dim)',
+    border: '1px solid rgba(15,82,160,0.18)', borderRadius: 20,
+    fontSize: 10, color: 'var(--accent)', fontFamily: 'Martian Mono, monospace',
+    letterSpacing: '0.04em',
   },
 
-  resetRow: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginTop: 32,
-  },
+  resetRow: { display: 'flex', justifyContent: 'center', marginTop: 32 },
   resetBtn: {
-    background: 'none',
-    border: 'none',
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 11,
-    color: 'var(--dim)',
-    cursor: 'pointer',
-    textDecoration: 'underline',
-    textUnderlineOffset: 3,
-    transition: 'color 0.15s',
+    background: 'none', border: 'none',
+    fontFamily: 'Martian Mono, monospace', fontSize: 10,
+    color: 'var(--dim)', cursor: 'pointer',
+    textDecoration: 'underline', textUnderlineOffset: 3,
+    letterSpacing: '0.04em',
   },
 }

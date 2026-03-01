@@ -10,16 +10,17 @@ const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null
   return (
     <div style={{
-      background: '#1a1510',
-      border: '1px solid #312718',
+      background: '#FFFFFF',
+      border: '1px solid #D5D0C6',
       borderRadius: 8,
       padding: '9px 13px',
-      fontFamily: 'Overpass Mono, monospace',
+      fontFamily: 'Martian Mono, monospace',
+      boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
     }}>
-      <div style={{ fontSize: 14, fontWeight: 600, color: '#d4702a', fontFamily: 'Fraunces, Georgia, serif' }}>
+      <div style={{ fontSize: 16, fontWeight: 400, color: '#0F52A0', fontFamily: 'Instrument Serif, Georgia, serif' }}>
         {numToCefr(payload[0].value)}
       </div>
-      <div style={{ fontSize: 11, color: '#8c7b68', marginTop: 2 }}>
+      <div style={{ fontSize: 10, color: '#6B6760', marginTop: 2, letterSpacing: '0.04em' }}>
         {payload[0].payload.date}
       </div>
     </div>
@@ -31,12 +32,13 @@ export default function ProgressChart({ history }) {
     return (
       <div style={{
         textAlign: 'center',
-        color: 'var(--muted)',
+        color: 'var(--dim)',
         padding: '28px 16px',
-        fontSize: 12,
-        fontFamily: 'Overpass Mono, monospace',
+        fontSize: 11,
+        fontFamily: 'Martian Mono, monospace',
+        letterSpacing: '0.04em',
       }}>
-        Complete a session to see your CEFR progress.
+        complete a session to see your cefr progress
       </div>
     )
   }
@@ -50,33 +52,33 @@ export default function ProgressChart({ history }) {
 
   return (
     <ResponsiveContainer width="100%" height={190}>
-      <LineChart data={data} margin={{ top: 6, right: 12, bottom: 4, left: 0 }}>
-        <CartesianGrid strokeDasharray="2 4" stroke="#261f18" />
+      <LineChart data={data} margin={{ top: 8, right: 14, bottom: 4, left: 0 }}>
+        <CartesianGrid strokeDasharray="3 6" stroke="#E5E2DA" />
         <XAxis
           dataKey="session"
-          stroke="#312718"
-          tick={{ fontSize: 11, fill: '#54473c', fontFamily: 'Overpass Mono, monospace' }}
+          stroke="#D5D0C6"
+          tick={{ fontSize: 10, fill: '#A8A49B', fontFamily: 'Martian Mono, monospace' }}
           tickLine={false}
-          axisLine={{ stroke: '#312718' }}
+          axisLine={{ stroke: '#D5D0C6' }}
         />
         <YAxis
           domain={[1, 6]}
           ticks={[1, 2, 3, 4, 5, 6]}
           tickFormatter={numToCefr}
-          stroke="#312718"
-          tick={{ fontSize: 11, fill: '#54473c', fontFamily: 'Overpass Mono, monospace' }}
+          stroke="#D5D0C6"
+          tick={{ fontSize: 10, fill: '#A8A49B', fontFamily: 'Martian Mono, monospace' }}
           tickLine={false}
-          axisLine={{ stroke: '#312718' }}
-          width={28}
+          axisLine={{ stroke: '#D5D0C6' }}
+          width={30}
         />
-        <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#312718', strokeWidth: 1 }} />
+        <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#D5D0C6', strokeWidth: 1 }} />
         <Line
           type="monotone"
           dataKey="level"
-          stroke="#d4702a"
+          stroke="#0F52A0"
           strokeWidth={2}
-          dot={{ fill: '#d4702a', r: 4, strokeWidth: 0 }}
-          activeDot={{ r: 6, fill: '#e07b35', strokeWidth: 0 }}
+          dot={{ fill: '#0F52A0', r: 4, strokeWidth: 0 }}
+          activeDot={{ r: 6, fill: '#1460B8', strokeWidth: 0 }}
         />
       </LineChart>
     </ResponsiveContainer>

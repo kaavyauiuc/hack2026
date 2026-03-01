@@ -3,16 +3,20 @@ export default function ChatBubble({ speaker, text, translation, audioLoading, o
   return (
     <div className={isUser ? 'msg-user' : 'msg-tutor'} style={s.wrapper(isUser)}>
       <div style={s.outer(isUser)}>
-        <div style={s.label(isUser)}>{isUser ? 'You' : 'Tutor'}</div>
+        <div style={s.label(isUser)}>{isUser ? 'you' : 'tutor'}</div>
         <div style={s.bubble(isUser)}>
-          <span style={s.text}>{text || <span style={s.cursor} />}</span>
+          <span style={s.text(isUser)}>{text || <span style={s.cursor} />}</span>
           {translation && (
             <div style={s.translation}>{translation}</div>
           )}
           {!isUser && (
             <div style={s.playRow}>
               {audioLoading
-                ? <span style={s.loadingDots}><span>·</span><span>·</span><span>·</span></span>
+                ? <span style={s.loadingDots}>
+                    <span style={s.dot}>·</span>
+                    <span style={{...s.dot, animationDelay: '0.18s'}}>·</span>
+                    <span style={{...s.dot, animationDelay: '0.36s'}}>·</span>
+                  </span>
                 : onPlay
                   ? <button style={s.playBtn} onClick={onPlay} title="Play audio">▶</button>
                   : null}
@@ -28,56 +32,60 @@ const s = {
   wrapper: isUser => ({
     display: 'flex',
     justifyContent: isUser ? 'flex-end' : 'flex-start',
-    marginBottom: 16,
+    marginBottom: 18,
     padding: '0 4px',
   }),
-  outer: isUser => ({
-    maxWidth: '75%',
+  outer: () => ({
+    maxWidth: '72%',
     minWidth: 48,
   }),
   label: isUser => ({
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 10,
-    letterSpacing: '0.12em',
-    textTransform: 'uppercase',
+    fontFamily: 'Martian Mono, monospace',
+    fontSize: 9,
+    letterSpacing: '0.18em',
+    textTransform: 'lowercase',
     color: 'var(--dim)',
     marginBottom: 5,
     textAlign: isUser ? 'right' : 'left',
   }),
   bubble: isUser => ({
-    padding: '12px 15px',
-    borderRadius: isUser ? '14px 14px 4px 14px' : '4px 14px 14px 14px',
-    background: isUser ? 'var(--surface-3)' : 'var(--surface)',
-    border: isUser ? '1px solid var(--border)' : 'none',
-    borderLeft: isUser ? undefined : '2px solid var(--accent)',
+    padding: '13px 16px',
+    borderRadius: isUser ? '12px 12px 3px 12px' : '3px 12px 12px 12px',
+    background: isUser ? 'var(--surface-2)' : 'rgba(15, 82, 160, 0.055)',
+    border: `1px solid ${isUser ? 'var(--border-subtle)' : 'rgba(15,82,160,0.15)'}`,
+    borderLeft: isUser ? undefined : '2.5px solid var(--accent)',
     color: 'var(--text)',
-    lineHeight: 1.65,
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 13.5,
+    lineHeight: 1.7,
     position: 'relative',
   }),
-  text: {
+  text: isUser => ({
+    fontFamily: isUser ? 'Martian Mono, monospace' : 'Instrument Serif, Georgia, serif',
+    fontSize: isUser ? 12 : 15,
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
-  },
+    display: 'block',
+  }),
   cursor: {
     display: 'inline-block',
-    width: 8,
-    height: 14,
+    width: 7,
+    height: 15,
     background: 'var(--accent)',
     borderRadius: 1,
     verticalAlign: 'text-bottom',
-    animation: 'blink 1s step-end infinite',
+    animation: 'blink 1.1s step-end infinite',
+    opacity: 0.7,
   },
   translation: {
-    marginTop: 9,
-    paddingTop: 9,
+    marginTop: 10,
+    paddingTop: 10,
     borderTop: '1px solid var(--border-subtle)',
-    fontFamily: 'Fraunces, Georgia, serif',
-    fontStyle: 'italic',
-    fontSize: 13,
+    fontFamily: 'Martian Mono, monospace',
+    fontSize: 10,
+    fontStyle: 'normal',
     color: 'var(--muted)',
     fontWeight: 300,
+    letterSpacing: '0.02em',
+    lineHeight: 1.65,
   },
   playRow: {
     display: 'flex',
@@ -90,16 +98,24 @@ const s = {
     border: 'none',
     color: 'var(--accent)',
     cursor: 'pointer',
-    fontSize: 13,
+    fontSize: 11,
     padding: '0 2px',
     lineHeight: 1,
-    opacity: 0.8,
+    opacity: 0.65,
     transition: 'opacity 0.15s',
+    fontFamily: 'Martian Mono, monospace',
   },
   loadingDots: {
-    fontFamily: 'Overpass Mono, monospace',
-    fontSize: 16,
-    color: 'var(--muted)',
-    letterSpacing: 2,
+    display: 'flex',
+    gap: 3,
+    alignItems: 'center',
+  },
+  dot: {
+    fontFamily: 'Martian Mono, monospace',
+    fontSize: 20,
+    color: 'var(--accent)',
+    opacity: 0.5,
+    animation: 'blink 1s ease-in-out infinite',
+    lineHeight: 1,
   },
 }
