@@ -1,4 +1,4 @@
-# LinguaAI
+# Rosetta
 
 An AI language tutor that listens, speaks, and shows up — with a talking avatar, real-time CEFR assessment, and lessons that adapt to how you actually learn.
 
