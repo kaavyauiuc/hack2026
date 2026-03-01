@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getUserProfile, getSessionHistory } from '../services/api.js'
-import ProgressChart from '../components/ProgressChart.jsx'
 import Nav from '../components/Nav.jsx'
 
 const LANG_NAMES = {
@@ -12,6 +11,142 @@ const LANG_NAMES = {
 const CEFR_LABELS = {
   A1: 'Beginner', A2: 'Elementary', B1: 'Intermediate',
   B2: 'Upper-intermediate', C1: 'Advanced', C2: 'Mastery',
+}
+
+const CEFR_ORDER    = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+const CEFR_SUBLABEL = {
+  A1: 'beginner', A2: 'elementary', B1: 'intermediate',
+  B2: 'upper-inter.', C1: 'advanced', C2: 'mastery',
+}
+
+// Color shifts on the A→B→C boundary
+const STAMP_COLOR = {
+  A1: '#b33a2e', A2: '#9c2f24',
+  B1: '#1a7a65', B2: '#0f6652',
+  C1: '#1e3d9e', C2: '#132880',
+}
+
+const STAMP_META = {
+  A1: { rotation: -13, y:  5 },
+  A2: { rotation:   9, y: -4 },
+  B1: { rotation:  -7, y:  7 },
+  B2: { rotation:  12, y: -6 },
+  C1: { rotation: -10, y:  4 },
+  C2: { rotation:   8, y: -3 },
+}
+
+const SIZE = 88
+
+function PassportStamp({ level, achieved, isCurrent }) {
+  const color  = STAMP_COLOR[level]
+  const { rotation, y } = STAMP_META[level]
+  const cx = SIZE / 2, cy = SIZE / 2
+  const outerR = cx - 3
+  const innerR = cx - 13
+  const textR  = cx - 8
+  const pathId = `sp-${level}`
+  // SVG circle path for textPath (starts at top)
+  const circlePath =
+    `M ${cx},${cy - textR} ` +
+    `a ${textR},${textR} 0 1,1 -0.001,0`
+  const arcText = `${CEFR_SUBLABEL[level].toUpperCase()} · LINGUA AI · `
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 6,
+      transform: `rotate(${rotation}deg) translateY(${y}px)`,
+      transition: 'filter 0.4s',
+      filter: isCurrent ? `drop-shadow(0 0 10px ${color}66)` : 'none',
+    }}>
+      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+        <defs>
+          <path id={pathId} d={circlePath} />
+        </defs>
+
+        {/* fill */}
+        <circle cx={cx} cy={cy} r={outerR}
+          fill={color}
+          fillOpacity={achieved ? (isCurrent ? 0.13 : 0.07) : 0}
+        />
+
+        {/* outer ring */}
+        <circle cx={cx} cy={cy} r={outerR}
+          fill="none"
+          stroke={color}
+          strokeWidth={isCurrent ? 2.5 : 2}
+          strokeDasharray={achieved ? undefined : '4 3'}
+          opacity={achieved ? 1 : 0.22}
+        />
+
+        {/* inner ring */}
+        <circle cx={cx} cy={cy} r={innerR}
+          fill="none"
+          stroke={color}
+          strokeWidth={0.9}
+          strokeDasharray={achieved ? undefined : '3 3'}
+          opacity={achieved ? 0.75 : 0.18}
+        />
+
+        {/* circular text */}
+        <text fontSize="5.8" fontFamily="'Martian Mono', monospace"
+          letterSpacing="2.2" fill={color}
+          opacity={achieved ? 0.6 : 0.12}>
+          <textPath href={`#${pathId}`} startOffset="0%">
+            {arcText}
+          </textPath>
+        </text>
+
+        {/* level code */}
+        <text x={cx} y={cy + 9}
+          textAnchor="middle"
+          fontFamily="'Instrument Serif', serif"
+          fontSize={isCurrent ? 27 : 22}
+          fontStyle="italic"
+          fill={color}
+          opacity={achieved ? 1 : 0.18}
+        >
+          {level}
+        </text>
+      </svg>
+
+      <div style={{
+        fontFamily: 'var(--font-mono)',
+        fontSize: 7.5,
+        letterSpacing: '0.09em',
+        color,
+        opacity: achieved ? 0.72 : 0.18,
+        textAlign: 'center',
+      }}>
+        {CEFR_SUBLABEL[level]}
+      </div>
+    </div>
+  )
+}
+
+function CefrPassport({ currentLevel }) {
+  const currentIdx = CEFR_ORDER.indexOf(currentLevel ?? '')
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: 6,
+      padding: '14px 0 22px',
+      flexWrap: 'nowrap',
+    }}>
+      {CEFR_ORDER.map((level, i) => (
+        <PassportStamp
+          key={level}
+          level={level}
+          achieved={currentIdx >= 0 && i <= currentIdx}
+          isCurrent={i === currentIdx}
+        />
+      ))}
+    </div>
+  )
 }
 
 const HELLO_IN = {
@@ -104,10 +239,10 @@ export default function Dashboard() {
           </>
         )}
 
-        {/* CEFR chart */}
+        {/* Fluency passport */}
         <div className="reveal-2 card" style={s.card}>
-          <div className="label-caps" style={{ marginBottom: 18 }}>progress</div>
-          <ProgressChart history={activeHistory} />
+          <div className="label-caps" style={{ marginBottom: 20 }}>fluency passport</div>
+          <CefrPassport currentLevel={activeLangProgress?.current_cefr_level} />
         </div>
 
         {/* Strengths / Weaknesses */}
