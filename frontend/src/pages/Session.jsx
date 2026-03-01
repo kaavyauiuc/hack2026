@@ -360,7 +360,8 @@ export default function Session() {
 
 const s = {
   page: {
-    minHeight: '100vh',
+    height: '100vh',
+    overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
     background: 'var(--bg)',
