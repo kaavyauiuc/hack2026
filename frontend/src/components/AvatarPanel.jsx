@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 // Static avatar image — same portrait SadTalker animates from.
 const AVATAR_IMG =
-  'https://raw.githubusercontent.com/OpenTalker/SadTalker/main/examples/source_image/art_0.png'
+  'https://img.freepik.com/free-photo/happy-young-woman-standing-isolated-white-wall_171337-18037.jpg?semt=ais_user_personalization&w=740&q=80'
 
 /**
  * AvatarPanel
