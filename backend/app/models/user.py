@@ -17,6 +17,7 @@ class LanguageProgress(BaseModel):
     current_cefr_level: str = "A1"
     strengths: List[str] = Field(default_factory=list)
     weaknesses: List[str] = Field(default_factory=list)
+    preferred_topics: List[str] = Field(default_factory=list)
     history: List[SessionSummary] = Field(default_factory=list)
 
 

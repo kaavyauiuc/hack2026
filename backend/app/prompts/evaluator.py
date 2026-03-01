@@ -7,6 +7,9 @@ You will analyze the conversation and assess:
 3. Specific linguistic weaknesses observed (e.g., "verb conjugation errors", "limited vocabulary range")
 4. A confidence score for your CEFR estimate
 5. A concrete recommendation for the next session
+6. Topics or activity types the learner showed enthusiasm for, asked about, or redirected toward —
+   list these as learning_interest_signals (e.g., "food vocabulary", "travel scenarios", "asking questions").
+   These will be stored as preferences to shape future session planning.
 
 Be objective and evidence-based. Quote or reference specific moments in the transcript when possible.
 You MUST respond using the submit_evaluation tool. Do not include any other text.

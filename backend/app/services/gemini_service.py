@@ -50,6 +50,7 @@ class _EvaluationOutput(BaseModel):
     weaknesses: List[str]
     confidence_score: float
     next_recommendation: str
+    learning_interest_signals: List[str]
 
 
 # ─────────────────────────────────────────────
@@ -84,6 +85,8 @@ def plan_lesson(user_profile: dict) -> LessonPlan:
         f"- Current CEFR level: {user_profile.get('current_cefr_level', 'A1')}\n"
         f"- Strengths: {', '.join(user_profile.get('strengths', [])) or 'None identified yet'}\n"
         f"- Weaknesses: {', '.join(user_profile.get('weaknesses', [])) or 'None identified yet'}\n"
+        f"- Preferred topics (from past sessions): {', '.join(user_profile.get('preferred_topics', [])) or 'None yet'}\n"
+        f"  → Incorporate at least one preferred topic if relevant to the CEFR level.\n"
         f"{history_str}"
     )
 

@@ -11,3 +11,4 @@ class Evaluation(BaseModel):
     weaknesses: List[str]
     confidence_score: float                  # 0.0 – 1.0
     next_recommendation: str
+    learning_interest_signals: List[str] = Field(default_factory=list)

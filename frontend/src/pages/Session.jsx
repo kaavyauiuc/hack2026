@@ -4,10 +4,18 @@ import MicButton, { useAudioRecorder } from '../components/AudioRecorder.jsx'
 import ChatBubble from '../components/ChatBubble.jsx'
 import { startSession, endSession, sendMessage, transcribeAudio, synthesizeSpeech, getUserProfile } from '../services/api.js'
 
+const LANG_ABBR = {
+  spa: 'ES', fra: 'FR', deu: 'DE', cmn: 'ZH', jpn: 'JA',
+  por: 'PT', hin: 'HI', eng: 'EN',
+}
+
+const NATIVE_PREFIX = '[NATIVE_INPUT]: '
+
 export default function Session() {
   const navigate = useNavigate()
   const userId = localStorage.getItem('user_id')
   const [targetLang, setTargetLang] = useState(localStorage.getItem('target_language') || 'spa')
+  const [nativeLang, setNativeLang] = useState(localStorage.getItem('native_language') || 'eng')
 
   const [sessionId, setSessionId] = useState(null)
   const [lessonTitle, setLessonTitle] = useState('')
@@ -15,6 +23,9 @@ export default function Session() {
   const [status, setStatus] = useState('Starting session…')
   const [isBusy, setIsBusy] = useState(true)
   const [evaluation, setEvaluation] = useState(null)
+
+  const [textInput, setTextInput] = useState('')
+  const [nativeLangMode, setNativeLangMode] = useState(false)
 
   const chatBottomRef = useRef(null)
   const currentAudioRef = useRef(null)
@@ -30,6 +41,10 @@ export default function Session() {
           const lang = profile.active_language ?? targetLang
           setTargetLang(lang)
           localStorage.setItem('target_language', lang)
+          if (profile.native_language) {
+            setNativeLang(profile.native_language)
+            localStorage.setItem('native_language', profile.native_language)
+          }
         } catch (_) {}
 
         const data = await startSession(userId)
@@ -38,7 +53,7 @@ export default function Session() {
         const msgId = Date.now()
         setMessages([{ id: msgId, speaker: 'tutor', text: data.tutor_message, translation: data.tutor_translation }])
         fetchTTS(msgId, data.tutor_message)
-        setStatus('tap mic to speak')
+        setStatus('tap mic or type')
         setIsBusy(false)
       } catch {
         setStatus('Failed to start session. Check backend connection.')
@@ -62,6 +77,36 @@ export default function Session() {
     audio.play()
   }
 
+  // Shared stream processor used by both speech and text paths
+  async function processTutorStream(reader) {
+    const decoder = new TextDecoder()
+    let tutorText = ''
+    const tutorMsgId = Date.now()
+    setMessages(prev => [...prev, { speaker: 'tutor', text: '', id: tutorMsgId }])
+    let streamingStarted = false
+
+    outer: while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      const raw = decoder.decode(value, { stream: true })
+      for (const line of raw.split('\n')) {
+        if (!line.startsWith('data: ')) continue
+        const chunk = line.slice(6)
+        if (chunk === '[DONE]') { fetchTTS(tutorMsgId, tutorText); break outer }
+        if (chunk.startsWith('[TRANSLATION]:')) {
+          const translation = JSON.parse(chunk.slice('[TRANSLATION]:'.length))
+          setMessages(prev => prev.map(m => m.id === tutorMsgId ? { ...m, translation } : m))
+          setIsBusy(false)
+          setStatus('tap mic or type')
+          continue
+        }
+        if (!streamingStarted) { streamingStarted = true; setStatus('responding…') }
+        tutorText += JSON.parse(chunk)
+        setMessages(prev => prev.map(m => m.id === tutorMsgId ? { ...m, text: tutorText } : m))
+      }
+    }
+  }
+
   const handleAudioBlob = useCallback(async (blob) => {
     if (!sessionId) return
     setIsBusy(true)
@@ -79,32 +124,7 @@ export default function Session() {
       setStatus('tutor is thinking…')
 
       const reader = await sendMessage(sessionId, userId, transcript)
-      const decoder = new TextDecoder()
-      let tutorText = ''
-      const tutorMsgId = Date.now()
-      setMessages(prev => [...prev, { speaker: 'tutor', text: '', id: tutorMsgId }])
-      let streamingStarted = false
-
-      outer: while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        const raw = decoder.decode(value, { stream: true })
-        for (const line of raw.split('\n')) {
-          if (!line.startsWith('data: ')) continue
-          const chunk = line.slice(6)
-          if (chunk === '[DONE]') { fetchTTS(tutorMsgId, tutorText); break outer }
-          if (chunk.startsWith('[TRANSLATION]:')) {
-            const translation = JSON.parse(chunk.slice('[TRANSLATION]:'.length))
-            setMessages(prev => prev.map(m => m.id === tutorMsgId ? { ...m, translation } : m))
-            setIsBusy(false)
-            setStatus('tap mic to speak')
-            continue
-          }
-          if (!streamingStarted) { streamingStarted = true; setStatus('responding…') }
-          tutorText += JSON.parse(chunk)
-          setMessages(prev => prev.map(m => m.id === tutorMsgId ? { ...m, text: tutorText } : m))
-        }
-      }
+      await processTutorStream(reader)
     } catch (e) {
       console.error(e)
       setStatus('something went wrong. try again.')
@@ -112,6 +132,36 @@ export default function Session() {
       setIsBusy(false)
     }
   }, [sessionId, userId, targetLang])
+
+  async function handleTextSend() {
+    const raw = textInput.trim()
+    if (!raw || !sessionId || isBusy) return
+
+    const displayText = raw
+    const messageText = nativeLangMode ? `${NATIVE_PREFIX}${raw}` : raw
+
+    setTextInput('')
+    setIsBusy(true)
+    setStatus('tutor is thinking…')
+    setMessages(prev => [...prev, { id: Date.now() + Math.random(), speaker: 'user', text: displayText }])
+
+    try {
+      const reader = await sendMessage(sessionId, userId, messageText)
+      await processTutorStream(reader)
+    } catch (e) {
+      console.error(e)
+      setStatus('something went wrong. try again.')
+    } finally {
+      setIsBusy(false)
+    }
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleTextSend()
+    }
+  }
 
   const { isRecording, startRecording, stopRecording } = useAudioRecorder(handleAudioBlob)
 
@@ -133,6 +183,9 @@ export default function Session() {
       setIsBusy(false)
     }
   }
+
+  const targetAbbr = LANG_ABBR[targetLang] ?? targetLang.toUpperCase()
+  const nativeAbbr = LANG_ABBR[nativeLang] ?? nativeLang.toUpperCase()
 
   return (
     <div style={s.page}>
@@ -169,12 +222,40 @@ export default function Session() {
 
       {/* Bottom bar */}
       <div style={s.bottom}>
-        <MicButton
-          isRecording={isRecording}
-          onStart={startRecording}
-          onStop={handleStopRecording}
-          disabled={isBusy}
-        />
+        <div style={s.inputRow}>
+          <MicButton
+            isRecording={isRecording}
+            onStart={startRecording}
+            onStop={handleStopRecording}
+            disabled={isBusy}
+          />
+          <button
+            style={s.langToggle(nativeLangMode)}
+            onClick={() => setNativeLangMode(v => !v)}
+            disabled={isBusy}
+            title={nativeLangMode ? `Switch to ${targetAbbr} input` : `Switch to ${nativeAbbr} input`}
+          >
+            <span style={s.toggleLang(!nativeLangMode)}>{targetAbbr}</span>
+            <span style={s.toggleArrow}>↔</span>
+            <span style={s.toggleLang(nativeLangMode)}>{nativeAbbr}</span>
+          </button>
+          <input
+            style={s.textInput}
+            type="text"
+            value={textInput}
+            onChange={e => setTextInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={nativeLangMode ? `type in ${nativeAbbr}…` : `type in ${targetAbbr}…`}
+            disabled={isBusy}
+          />
+          <button
+            style={s.sendBtn(!!textInput.trim() && !isBusy)}
+            onClick={handleTextSend}
+            disabled={!textInput.trim() || isBusy}
+          >
+            ↑
+          </button>
+        </div>
         <div style={s.statusRow}>
           {isBusy && !isRecording && <span className="spinner" style={{ width: 11, height: 11, marginRight: 8 }} />}
           <span style={s.statusText}>{status}</span>
@@ -300,15 +381,77 @@ const s = {
   chatArea: { flex: 1, overflowY: 'auto', padding: '28px 16px 12px' },
   chatInner: { maxWidth: 680, margin: '0 auto' },
   bottom: {
-    padding: '20px 24px 28px',
+    padding: '16px 20px 24px',
     borderTop: '1px solid var(--border)',
     background: 'rgba(248,246,241,0.88)',
     backdropFilter: 'blur(12px)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
   },
+  inputRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    width: '100%',
+    maxWidth: 680,
+  },
+  langToggle: (isNative) => ({
+    padding: '0 10px',
+    height: 38,
+    background: isNative ? 'var(--accent-dim)' : 'var(--surface-2)',
+    border: `1px solid ${isNative ? 'rgba(15,82,160,0.35)' : 'var(--border)'}`,
+    borderRadius: 8,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    flexShrink: 0,
+    transition: 'background 0.15s, border-color 0.15s',
+  }),
+  toggleLang: (active) => ({
+    fontFamily: 'var(--font-mono)',
+    fontSize: 10,
+    fontWeight: active ? 600 : 400,
+    color: active ? 'var(--accent)' : 'var(--dim)',
+    letterSpacing: '0.06em',
+    transition: 'color 0.15s, font-weight 0.15s',
+  }),
+  toggleArrow: {
+    fontFamily: 'var(--font-mono)',
+    fontSize: 9,
+    color: 'var(--dim)',
+    opacity: 0.5,
+  },
+  textInput: {
+    flex: 1,
+    height: 38,
+    padding: '0 14px',
+    background: 'var(--surface-2)',
+    border: '1px solid var(--border)',
+    borderRadius: 8,
+    fontFamily: 'var(--font-mono)',
+    fontSize: 12,
+    color: 'var(--text)',
+    outline: 'none',
+    transition: 'border-color 0.15s',
+  },
+  sendBtn: (active) => ({
+    width: 38,
+    height: 38,
+    background: active ? 'var(--accent)' : 'var(--surface-2)',
+    border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+    borderRadius: 8,
+    color: active ? '#fff' : 'var(--dim)',
+    fontSize: 14,
+    cursor: active ? 'pointer' : 'default',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    transition: 'background 0.15s, border-color 0.15s, color 0.15s',
+  }),
   statusRow: { display: 'flex', alignItems: 'center' },
   statusText: {
     fontSize: 10,

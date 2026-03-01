@@ -218,20 +218,26 @@ async def end_session(body: EndSessionRequest):
         )
         existing_weaknesses = (lang_progress or {}).get("weaknesses", [])
         existing_strengths = (lang_progress or {}).get("strengths", [])
+        existing_prefs = (lang_progress or {}).get("preferred_topics", [])
         new_weaknesses = list(dict.fromkeys(evaluation.weaknesses + existing_weaknesses))[:10]
         new_strengths = list(dict.fromkeys(evaluation.achieved_objectives + existing_strengths))[:10]
+        new_prefs = list(dict.fromkeys(
+            (getattr(evaluation, "learning_interest_signals", None) or []) + existing_prefs
+        ))[:15]
     except Exception:
         evaluation = None
         eval_dict = {}
         new_cefr = (lang_progress or {}).get("current_cefr_level", "A1")
         new_weaknesses = (lang_progress or {}).get("weaknesses", [])
         new_strengths = (lang_progress or {}).get("strengths", [])
+        new_prefs = (lang_progress or {}).get("preferred_topics", [])
 
     if user:
         await db_service.update_user_language_progress(body.user_id, active_lang, {
             "current_cefr_level": new_cefr,
             "weaknesses": new_weaknesses,
             "strengths": new_strengths,
+            "preferred_topics": new_prefs,
         })
 
         summary = SessionSummary(
