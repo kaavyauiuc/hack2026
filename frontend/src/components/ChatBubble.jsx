@@ -1,4 +1,4 @@
-export default function ChatBubble({ speaker, text, translation, audioLoading, onPlay }) {
+export default function ChatBubble({ speaker, text, translation, audioLoading, onPlay, onPause, isPlaying }) {
   const isUser = speaker === 'user'
   return (
     <div className={isUser ? 'msg-user' : 'msg-tutor'} style={s.wrapper(isUser)}>
@@ -17,9 +17,11 @@ export default function ChatBubble({ speaker, text, translation, audioLoading, o
                     <span style={{...s.dot, animationDelay: '0.18s'}}>·</span>
                     <span style={{...s.dot, animationDelay: '0.36s'}}>·</span>
                   </span>
-                : onPlay
-                  ? <button style={s.playBtn} onClick={onPlay} title="Play audio">▶</button>
-                  : null}
+                : isPlaying
+                  ? <button style={s.playBtn} onClick={onPause} title="Pause audio">‖</button>
+                  : onPlay
+                    ? <button style={s.playBtn} onClick={onPlay} title="Play audio">▶</button>
+                    : null}
             </div>
           )}
         </div>

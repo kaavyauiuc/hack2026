@@ -26,6 +26,7 @@ export default function Session() {
 
   const [textInput, setTextInput] = useState('')
   const [nativeLangMode, setNativeLangMode] = useState(false)
+  const [playingId, setPlayingId] = useState(null)
 
   const chatBottomRef = useRef(null)
   const currentAudioRef = useRef(null)
@@ -70,11 +71,21 @@ export default function Session() {
       .catch(() => setMessages(prev => prev.map(m => m.id === msgId ? { ...m, audioLoading: false } : m)))
   }
 
-  function handlePlay(audioUrl) {
-    if (currentAudioRef.current) currentAudioRef.current.pause()
+  function handlePlay(msgId, audioUrl) {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause()
+      currentAudioRef.current.onended = null
+    }
     const audio = new Audio(audioUrl)
     currentAudioRef.current = audio
+    setPlayingId(msgId)
+    audio.onended = () => setPlayingId(null)
     audio.play()
+  }
+
+  function handlePause() {
+    currentAudioRef.current?.pause()
+    setPlayingId(null)
   }
 
   // Shared stream processor used by both speech and text paths
@@ -213,7 +224,9 @@ export default function Session() {
               text={m.text}
               translation={m.translation}
               audioLoading={m.audioLoading}
-              onPlay={m.audioUrl ? () => handlePlay(m.audioUrl) : undefined}
+              isPlaying={playingId === m.id}
+              onPlay={m.audioUrl && playingId !== m.id ? () => handlePlay(m.id, m.audioUrl) : undefined}
+              onPause={playingId === m.id ? handlePause : undefined}
             />
           ))}
           <div ref={chatBottomRef} />
