@@ -23,6 +23,7 @@
   --red-glow:      rgba(179, 48, 32, 0.16);
 
   --font-display:  'Instrument Serif', Georgia, serif;
+  --font-sans:     'Inter', system-ui, sans-serif;
   --font-mono:     'Martian Mono', monospace;
 
   --radius:        8px;
@@ -55,6 +56,7 @@
   --red-glow:      rgba(196, 64, 64, 0.22);
 
   --font-display:  'Fraunces', Georgia, serif;
+  --font-sans:     'Inter', system-ui, sans-serif;
   --font-mono:     'Overpass Mono', monospace;
 }
 
@@ -232,6 +234,16 @@ body {
   box-shadow: none;
 }
 .field::placeholder { color: var(--dim); }
+
+/* ── Frosted bar (session header / bottom) ───────────────────── */
+.frosted-bar {
+  background: rgba(248, 246, 241, 0.90);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+[data-theme="atelier"] .frosted-bar {
+  background: rgba(14, 11, 9, 0.90);
+}
 
 /* ── Tooltip ─────────────────────────────────────────────────── */
 .tooltip-wrap {

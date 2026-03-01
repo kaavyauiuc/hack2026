@@ -62,7 +62,7 @@ const s = {
   }),
   text: isUser => ({
     fontFamily: isUser ? 'var(--font-mono)' : 'var(--font-display)',
-    fontSize: isUser ? 14 : 17,
+    fontSize: isUser ? 15 : 17,
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
     display: 'block',

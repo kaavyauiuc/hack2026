@@ -216,10 +216,10 @@ export default function Session() {
   const nativeAbbr = LANG_ABBR[nativeLang] ?? nativeLang.toUpperCase()
 
   return (
-    <div style={s.page}>
+    <div className="grid-bg" style={s.page}>
 
       {/* Header */}
-      <header style={s.header}>
+      <header className="frosted-bar" style={s.header}>
         <div style={s.headerLeft}>
           <span style={s.logo}>
             <em style={s.logoL}>Rosetta</em>
@@ -263,7 +263,7 @@ export default function Session() {
       </div>
 
       {/* Bottom bar */}
-      <div style={s.bottom}>
+      <div className="frosted-bar" style={s.bottom}>
         <div style={s.inputRow}>
           <MicButton
             isRecording={isRecording}
@@ -365,14 +365,10 @@ const s = {
     display: 'flex',
     flexDirection: 'column',
     background: 'var(--bg)',
-    backgroundImage: 'radial-gradient(circle, #C8C4BB 0.8px, transparent 0.8px)',
-    backgroundSize: '24px 24px',
   },
   header: {
     padding: '14px 24px',
     borderBottom: '1px solid var(--border)',
-    background: 'rgba(248,246,241,0.88)',
-    backdropFilter: 'blur(12px)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -383,10 +379,11 @@ const s = {
   headerLeft: { display: 'flex', alignItems: 'center', gap: 14 },
   logo: { display: 'flex', alignItems: 'baseline' },
   logoL: {
-    fontFamily: 'var(--font-display)',
-    fontStyle: 'italic',
-    fontSize: 17,
-    fontWeight: 400,
+    fontFamily: 'var(--font-mono)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.18em',
+    fontSize: 13,
+    fontWeight: 500,
     color: 'var(--accent)',
   },
   logoR: {
@@ -407,7 +404,6 @@ const s = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-    letterSpacing: '0.03em',
   },
   endBtn: {
     padding: '6px 14px',
@@ -416,8 +412,7 @@ const s = {
     borderRadius: 6,
     color: 'var(--muted)',
     fontFamily: 'var(--font-mono)',
-    fontSize: 12,
-    letterSpacing: '0.04em',
+    fontSize: 13,
     cursor: 'pointer',
     transition: 'border-color 0.15s, color 0.15s',
   },
@@ -444,8 +439,6 @@ const s = {
   bottom: {
     padding: '16px 20px 24px',
     borderTop: '1px solid var(--border)',
-    background: 'rgba(248,246,241,0.88)',
-    backdropFilter: 'blur(12px)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -515,10 +508,9 @@ const s = {
   }),
   statusRow: { display: 'flex', alignItems: 'center' },
   statusText: {
-    fontSize: 12,
+    fontSize: 13,
     color: 'var(--muted)',
     fontFamily: 'var(--font-mono)',
-    letterSpacing: '0.06em',
   },
   overlay: {
     position: 'fixed', inset: 0,
@@ -554,13 +546,11 @@ const s = {
     padding: '4px 10px', background: 'var(--sage-dim)',
     border: '1px solid rgba(55,107,82,0.2)', borderRadius: 20,
     fontSize: 12, color: 'var(--sage)', fontFamily: 'var(--font-mono)',
-    letterSpacing: '0.03em',
   },
   tagBlue: {
     padding: '4px 10px', background: 'var(--accent-dim)',
     border: '1px solid rgba(15,82,160,0.18)', borderRadius: 20,
     fontSize: 12, color: 'var(--accent)', fontFamily: 'var(--font-mono)',
-    letterSpacing: '0.03em',
   },
   recommendation: {
     fontSize: 13, color: 'var(--text)',
@@ -581,7 +571,7 @@ const s = {
     flex: 1, padding: '12px',
     background: 'transparent', border: '1px solid var(--border)',
     borderRadius: 'var(--radius)', color: 'var(--muted)',
-    fontFamily: 'var(--font-mono)', fontSize: 12,
-    letterSpacing: '0.04em', cursor: 'pointer',
+    fontFamily: 'var(--font-mono)', fontSize: 13,
+    cursor: 'pointer',
   },
 }

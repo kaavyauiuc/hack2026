@@ -201,10 +201,11 @@ const s = {
     marginBottom: 36,
   },
   wordmarkL: {
-    fontFamily: 'var(--font-display)',
-    fontStyle: 'italic',
-    fontSize: 20,
-    fontWeight: 400,
+    fontFamily: 'var(--font-mono)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.22em',
+    fontSize: 16,
+    fontWeight: 500,
     color: 'var(--accent)',
   },
   wordmarkR: {
@@ -228,7 +229,7 @@ const s = {
   },
   sub: {
     fontFamily: 'var(--font-mono)',
-    fontSize: 11,
+    fontSize: 13,
     color: 'var(--muted)',
     lineHeight: 1.9,
     marginBottom: 28,
@@ -246,9 +247,9 @@ const s = {
     border: '1px solid rgba(15,82,160,0.18)',
     borderRadius: 20,
     fontFamily: 'var(--font-mono)',
-    fontSize: 9,
+    fontSize: 11,
     color: 'var(--accent)',
-    letterSpacing: '0.08em',
+    letterSpacing: '0.06em',
   },
   card: {
     padding: '30px 28px 26px',
@@ -282,10 +283,10 @@ const s = {
     color: 'var(--text)',
   },
   langEn: {
-    fontSize: 8,
+    fontSize: 11,
     color: 'var(--muted)',
     fontFamily: 'var(--font-mono)',
-    letterSpacing: '0.05em',
+    letterSpacing: '0.04em',
   },
   selDot: {
     position: 'absolute',
@@ -351,10 +352,10 @@ const s = {
   }),
   error: {
     marginTop: 12,
-    fontSize: 10,
+    fontSize: 12,
     color: 'var(--red)',
     fontFamily: 'var(--font-mono)',
     textAlign: 'center',
-    letterSpacing: '0.04em',
+    letterSpacing: '0.03em',
   },
 }

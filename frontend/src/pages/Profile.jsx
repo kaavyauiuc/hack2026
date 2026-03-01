@@ -219,7 +219,7 @@ export default function Profile() {
             {availableToAdd.length > 0 && !showAddLang && (
               <button style={s.addLangBtn} onClick={() => setShowAddLang(true)}>
                 <span style={{ fontSize: 24, lineHeight: 1, opacity: 0.4 }}>+</span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.08em', opacity: 0.5 }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.06em', opacity: 0.5 }}>
                   add language
                 </span>
               </button>
@@ -396,8 +396,8 @@ const s = {
   },
   since: {
     fontFamily: 'var(--font-mono)',
-    fontSize: 10, color: 'var(--muted)',
-    letterSpacing: '0.04em', fontWeight: 300,
+    fontSize: 12, color: 'var(--muted)',
+    letterSpacing: '0.03em', fontWeight: 300,
   },
 
   editForm: { display: 'flex', flexDirection: 'column', gap: 10 },
@@ -410,26 +410,26 @@ const s = {
   editSelect: {
     background: 'var(--surface)', border: '1px solid var(--border)',
     borderRadius: 8, color: 'var(--text)',
-    fontFamily: 'var(--font-mono)', fontSize: 11,
+    fontFamily: 'var(--font-mono)', fontSize: 13,
     padding: '9px 13px', outline: 'none', width: '100%', appearance: 'none',
   },
   editBtns: { display: 'flex', gap: 8, marginTop: 4 },
   btnSave: {
     padding: '8px 18px', background: 'var(--accent)', border: 'none', borderRadius: 6,
-    color: '#fff', fontFamily: 'var(--font-mono)', fontSize: 10,
-    letterSpacing: '0.06em', cursor: 'pointer',
+    color: '#fff', fontFamily: 'var(--font-mono)', fontSize: 12,
+    letterSpacing: '0.04em', cursor: 'pointer',
   },
   btnCancel: {
     padding: '8px 14px', background: 'none', border: '1px solid var(--border)',
     borderRadius: 6, color: 'var(--muted)', fontFamily: 'var(--font-mono)',
-    fontSize: 10, letterSpacing: '0.06em', cursor: 'pointer',
+    fontSize: 12, letterSpacing: '0.04em', cursor: 'pointer',
   },
 
   errorBanner: {
     padding: '10px 14px', background: 'rgba(179,48,32,0.07)',
     border: '1px solid rgba(179,48,32,0.2)', borderRadius: 8,
     color: 'var(--red)', fontFamily: 'var(--font-mono)',
-    fontSize: 10, letterSpacing: '0.04em', marginBottom: 14,
+    fontSize: 12, letterSpacing: '0.03em', marginBottom: 14,
   },
 
   rule: {
@@ -470,8 +470,8 @@ const s = {
     fontStyle: 'italic', fontSize: 14, fontWeight: 400, color: 'var(--text)',
   },
   langCardNative: {
-    fontFamily: 'var(--font-mono)', fontSize: 9,
-    color: 'var(--muted)', letterSpacing: '0.04em',
+    fontFamily: 'var(--font-mono)', fontSize: 11,
+    color: 'var(--muted)', letterSpacing: '0.03em',
   },
   langCardLevel: isActive => ({
     fontFamily: 'var(--font-display)',
@@ -480,8 +480,8 @@ const s = {
     marginTop: 4,
   }),
   langCardSessions: {
-    fontFamily: 'var(--font-mono)', fontSize: 8,
-    color: 'var(--dim)', letterSpacing: '0.06em',
+    fontFamily: 'var(--font-mono)', fontSize: 11,
+    color: 'var(--dim)', letterSpacing: '0.04em',
   },
 
   addLangBtn: {
@@ -509,13 +509,13 @@ const s = {
     background: isSelected ? 'var(--accent)' : 'var(--surface)',
     border: `1px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`,
     borderRadius: 6, color: isSelected ? '#fff' : 'var(--muted)',
-    fontFamily: 'var(--font-mono)', fontSize: 10,
+    fontFamily: 'var(--font-mono)', fontSize: 12,
     cursor: 'pointer', transition: 'all 0.12s',
   }),
 
   addLangErr: {
-    fontFamily: 'var(--font-mono)', fontSize: 10,
-    color: 'var(--red)', marginBottom: 8, letterSpacing: '0.04em',
+    fontFamily: 'var(--font-mono)', fontSize: 12,
+    color: 'var(--red)', marginBottom: 8, letterSpacing: '0.03em',
   },
 
   statsRow: {
@@ -529,8 +529,8 @@ const s = {
     color: 'var(--accent)', lineHeight: 1, marginBottom: 4,
   },
   statSub: {
-    fontFamily: 'var(--font-mono)', fontSize: 9,
-    color: 'var(--dim)', letterSpacing: '0.08em',
+    fontFamily: 'var(--font-mono)', fontSize: 11,
+    color: 'var(--dim)', letterSpacing: '0.05em',
   },
 
   card: { padding: '20px 22px 18px', marginBottom: 12 },
@@ -556,35 +556,37 @@ const s = {
   }),
   cefrLabelText: current => ({
     fontFamily: 'var(--font-mono)',
-    fontSize: current ? 11 : 9, fontWeight: current ? 500 : 300,
+    fontSize: current ? 13 : 11, fontWeight: current ? 500 : 300,
     color: current ? 'var(--accent)' : 'var(--dim)',
-    letterSpacing: '0.06em',
+    letterSpacing: '0.05em',
   }),
 
   twoCol: {
     display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
     gap: 10, marginBottom: 12,
   },
-  tagCloud: { display: 'flex', flexWrap: 'wrap', gap: 6 },
+  tagCloud: { display: 'flex', flexDirection: 'column', gap: 2 },
   tagGreen: {
-    padding: '4px 10px', background: 'var(--sage-dim)',
-    border: '1px solid rgba(55,107,82,0.2)', borderRadius: 20,
-    fontSize: 10, color: 'var(--sage)', fontFamily: 'var(--font-mono)',
-    letterSpacing: '0.04em',
+    padding: '7px 12px',
+    background: 'transparent',
+    borderLeft: '3px solid var(--sage)',
+    fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-mono)',
+    fontWeight: 400,
   },
   tagBlue: {
-    padding: '4px 10px', background: 'var(--accent-dim)',
-    border: '1px solid rgba(15,82,160,0.18)', borderRadius: 20,
-    fontSize: 10, color: 'var(--accent)', fontFamily: 'var(--font-mono)',
-    letterSpacing: '0.04em',
+    padding: '7px 12px',
+    background: 'transparent',
+    borderLeft: '3px solid var(--accent)',
+    fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-mono)',
+    fontWeight: 400,
   },
 
   resetRow: { display: 'flex', justifyContent: 'center', marginTop: 32 },
   resetBtn: {
     background: 'none', border: 'none',
-    fontFamily: 'var(--font-mono)', fontSize: 10,
+    fontFamily: 'var(--font-mono)', fontSize: 12,
     color: 'var(--dim)', cursor: 'pointer',
     textDecoration: 'underline', textUnderlineOffset: 3,
-    letterSpacing: '0.04em',
+    letterSpacing: '0.03em',
   },
 }
