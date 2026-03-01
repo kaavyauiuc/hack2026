@@ -43,8 +43,8 @@ const s = {
   }),
   label: isUser => ({
     fontFamily: 'var(--font-mono)',
-    fontSize: 9,
-    letterSpacing: '0.18em',
+    fontSize: 11,
+    letterSpacing: '0.14em',
     textTransform: 'lowercase',
     color: 'var(--dim)',
     marginBottom: 5,
@@ -62,7 +62,7 @@ const s = {
   }),
   text: isUser => ({
     fontFamily: isUser ? 'var(--font-mono)' : 'var(--font-display)',
-    fontSize: isUser ? 12 : 15,
+    fontSize: isUser ? 14 : 17,
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
     display: 'block',
@@ -82,7 +82,7 @@ const s = {
     paddingTop: 10,
     borderTop: '1px solid var(--border-subtle)',
     fontFamily: 'var(--font-mono)',
-    fontSize: 10,
+    fontSize: 12,
     fontStyle: 'normal',
     color: 'var(--muted)',
     fontWeight: 300,
